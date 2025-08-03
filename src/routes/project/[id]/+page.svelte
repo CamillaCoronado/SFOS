@@ -76,7 +76,7 @@
     </div>
     
     <!-- back button -->
-    <a href="/" class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200">
+    <a href="/projects" class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200">
       ← Back to Projects
     </a>
   </div>
@@ -84,7 +84,7 @@
   <div class="max-w-4xl mx-auto px-4 py-8 text-center">
     <h1 class="text-2xl font-bold text-gray-900 mb-4">Project Not Found</h1>
     <p class="text-gray-600 mb-6">The project you're looking for doesn't exist.</p>
-    <a href="/" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    <a href="/projects" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
       Back to Projects
     </a>
   </div>
