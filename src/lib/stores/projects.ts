@@ -8,7 +8,6 @@ export interface Project {
     title: string;
     description: string;
     tags: string[];
-    contributors: number;
     comments: number;
     avatars: string[];
     githubUrl?: string;
@@ -36,7 +35,6 @@ const dummyProjects: Project[] = [
     title: 'AI-Powered Code Review Tool',
     description: 'Building an intelligent code review system that uses machine learning to catch bugs and suggest improvements automatically.',
     tags: ['ai', 'machine-learning', 'dev-tools'],
-    contributors: 5,
     comments: 12,
     avatars: [],
     githubUrl: 'https://github.com/example/code-review-ai',
@@ -61,7 +59,6 @@ const dummyProjects: Project[] = [
     title: 'Local Food Waste Tracker',
     description: 'Mobile app to help restaurants and cafes track food waste and connect with local charities for donation pickup.',
     tags: ['mobile', 'sustainability', 'social-impact'],
-    contributors: 3,
     comments: 8,
     avatars: [],
     createdAt: new Date('2025-07-18'),
@@ -85,7 +82,6 @@ const dummyProjects: Project[] = [
     title: 'Open Source Design System',
     description: 'Creating a comprehensive design system with components, tokens, and guidelines for non-profit organizations.',
     tags: ['design', 'open-source', 'ui/ux'],
-    contributors: 7,
     comments: 23,
     avatars: [],
     createdAt: new Date('2025-07-10'),
@@ -114,7 +110,6 @@ export function addProject(projectData: Omit<Project, 'id' | 'contributors' | 'c
   const project: Project = {
     ...projectData,
     id: crypto.randomUUID(),
-    contributors: 1,
     comments: 0,
     avatars: [],
     createdAt: new Date(),
@@ -131,6 +126,26 @@ export function addProject(projectData: Omit<Project, 'id' | 'contributors' | 'c
   
   projects.update(current => [project, ...current]);
   return project.id;
+}
+
+export function upvoteProject(projectId: string) {
+  projects.update(current => 
+    current.map(project => 
+      project.id === projectId 
+        ? { ...project, upvotes: project.upvotes + 1, score: project.score + 1 }
+        : project
+    )
+  );
+}
+
+export function downvoteProject(projectId: string) {
+  projects.update(current => 
+    current.map(project => 
+      project.id === projectId 
+        ? { ...project, downvotes: project.downvotes + 1, score: project.score - 1 }
+        : project
+    )
+  );
 }
 
 
