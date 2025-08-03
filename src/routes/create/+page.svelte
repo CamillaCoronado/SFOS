@@ -13,21 +13,35 @@
   let contactMethod: 'discord' | 'email' | 'github' | 'other' = 'email';
   let contactInfo: string = '';
   
-  function handleSubmit() {
-    const projectId = addProject({
-      title,
-      description,
-      tags: tags.split(',').map(t => t.trim()).filter(t => t),
-      githubUrl: githubUrl || undefined,
-      imageUrl: imageUrl || undefined,
-      experienceLevel,
-      timeCommitment,
-      duration,
-      contactMethod,
-      contactInfo
-    });
-    
-    goto('/projects');
+  let isLoading = false;
+  let error: string | null = null;
+
+  async function handleSubmit(e: Event) {
+    e.preventDefault(); // Prevent default form submission
+    isLoading = true;
+    error = null;
+
+    try {
+      const projectId = await addProject({
+        title,
+        description,
+        tags: tags.split(',').map(t => t.trim()).filter(t => t),
+        githubUrl: githubUrl || undefined,
+        imageUrl: imageUrl || undefined,   
+        experienceLevel,
+        timeCommitment,
+        duration,
+        contactMethod,
+        contactInfo
+      });
+      
+      await goto('/projects'); // Wait for navigation
+    } catch (err) {
+      console.error('Submission failed:', err);
+      error = err instanceof Error ? err.message : 'Failed to create project';
+    } finally {
+      isLoading = false;
+    }
   }
 </script>
 
