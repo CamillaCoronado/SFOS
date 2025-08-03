@@ -1,22 +1,22 @@
-<script>
-  let searchQuery = '';
+<script lang="ts">
+    let searchQuery = '';
 </script>
 
 <div class="min-h-screen bg-gray-50">
   <!-- Header -->
-  <header class="bg-white shadow-sm">
+  <header class="bg-white shadow-sm fixed w-full top-0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <div class="flex items-center">
           <div class="w-8 h-8 bg-orange-500 rounded-full"></div>
-          <span class="ml-2 text-xl font-semibold">City Match</span>
+          <span class="ml-2 text-color-orange-500 text-xl font-semibold">SFOS</span>
         </div>
         
         <!-- Nav -->
         <div class="flex items-center space-x-4">
-          <button class="text-gray-700 hover:text-gray-900 cursor-pointer">Log in</button>
-          <button class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 cursor-pointer">
+          <button class="text-gray-700 hover:text-gray-900 cursor-pointer text-sm">Log in</button>
+          <button class="bg-orange-500 text-sm text-white px-4 py-2 rounded-full hover:bg-orange-600 cursor-pointer">
             Sign up
           </button>
         </div>
@@ -25,13 +25,13 @@
   </header>
 
   <!-- Search Bar -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+  <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 mt-[72px] inline-block">
     <div class="flex max-w-md">
       <input
         type="text"
         bind:value={searchQuery}
         placeholder="Search projects"
-        class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none"
       />
       <button class="bg-blue-500 text-white px-6 py-3 rounded-r-lg hover:bg-blue-600 cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@
   </div>
 
   <!-- Hero Section -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
     <div class="grid md:grid-cols-2 gap-12 items-center">
       <div>
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
@@ -58,22 +58,17 @@
       
       <!-- Bridge Illustration -->
       <div class="flex justify-center">
-        <svg class="w-64 h-64 text-orange-500" viewBox="0 0 200 200" fill="currentColor">
-          <path d="M20 140 L50 80 L50 140 M150 80 L150 140 L180 140 M20 140 L180 140 M50 100 L150 100 M70 100 L70 140 M130 100 L130 140 M100 140 L100 160 M90 160 L110 160" 
-                stroke="currentColor" stroke-width="4" fill="none"/>
-          <circle cx="100" cy="150" r="3"/>
-        </svg>
+        <img src="/golden-gate.png" alt="golden gate" class="w-full" />
       </div>
     </div>
   </section>
 
   <!-- How It Works -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
-    <h2 class="text-3xl font-bold text-gray-900 mb-12">How City Match Works</h2>
-    
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    <h2 class="text-3xl font-bold text-gray-900 mb-12">How SFOS Works</h2>
     <div class="space-y-8">
       <!-- Step 1 -->
-      <div class="flex items-start space-x-4">
+      <div class="flex items-start space-x-4 border-b pb-8">
         <div class="flex-shrink-0 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
           <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
             <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1a1 1 0 012 0v1a1 1 0 11-2 0zM12 14a1 1 0 00-.707.293l-.707.707a1 1 0 101.414 1.414l.707-.707A1 1 0 0012 14zM4.343 12.343a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414-1.414l-.707-.707z"/>
@@ -103,12 +98,12 @@
   </section>
 
   <!-- Popular Projects -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 mb-16">
-    <h2 class="text-3xl font-bold text-gray-900 mb-8">Popular Projects</h2>
+  <section class="max-w-7xl sm:px-6 lg:px-8 mt-8 mb-4">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8 pl-4">Popular Projects</h2>
     
     <div class="grid md:grid-cols-2 gap-6">
       <!-- Project Card 1 -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="bg-white shadow-sm border border-gray-200 p-6">
         <h3 class="text-xl font-semibold text-gray-900 mb-2">Some project title or other</h3>
         <p class="text-gray-600 mb-4">
           Lorem ipsum dolor sit amet, consectetu, and some description of what it is here
