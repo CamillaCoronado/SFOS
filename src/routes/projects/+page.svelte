@@ -61,7 +61,7 @@
         <!-- Logo -->
         <div class="flex items-center">
           <div class="w-8 h-8 bg-orange-500 rounded-full"></div>
-          <span class="ml-2 text-color-orange-500 text-xl font-semibold">SFOS</span>
+          <span class="ml-2 text-orange-500 text-xl font-semibold">SFOS</span>
         </div>
         
         <!-- Nav -->
@@ -153,13 +153,13 @@
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
                     </svg>
-                    {project.upvotes}
+                   
                   </div>
+                  <span>  {project.score} </span>
                   <div class="flex items-center mr-4">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
-                    {project.downvotes}
                   </div>
                   <div class="flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
