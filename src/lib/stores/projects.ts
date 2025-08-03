@@ -128,5 +128,25 @@ export function addProject(projectData: Omit<Project, 'id' | 'contributors' | 'c
   return project.id;
 }
 
+export function upvoteProject(projectId: string) {
+  projects.update(current => 
+    current.map(project => 
+      project.id === projectId 
+        ? { ...project, upvotes: project.upvotes + 1, score: project.score + 1 }
+        : project
+    )
+  );
+}
+
+export function downvoteProject(projectId: string) {
+  projects.update(current => 
+    current.map(project => 
+      project.id === projectId 
+        ? { ...project, downvotes: project.downvotes + 1, score: project.score - 1 }
+        : project
+    )
+  );
+}
+
 
 

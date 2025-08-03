@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { projects } from '$lib/stores/projects';
+    import { downvoteProject, projects, upvoteProject } from '$lib/stores/projects';
+
     let searchQuery = '';
     $: sortedProjects = $projects.sort((a, b) => b.score - a.score);
 </script>
@@ -105,6 +106,7 @@
   
   <div class="grid md:grid-cols-2 gap-6">
     {#each sortedProjects as project}
+    <a href="/project/{project.id}" class="block hover:shadow-md transition-shadow">
       <div class="bg-white shadow-sm border border-gray-200 p-6">
         <h3 class="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
         <p class="text-gray-600 mb-4">
@@ -122,15 +124,19 @@
         <div class="flex items-center justify-between text-gray-500">
           <div class="flex items-center space-x-4">
             <span class="flex items-center">
-                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                </svg>
+                <button onclick={() => upvoteProject(project.id)}>
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    </svg>
+                </button>
                 {project.upvotes}
                 </span>
                 <span class="flex items-center">
-                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
+                <button onclick={() => downvoteProject(project.id)}>
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
                 {project.downvotes}
             </span>
             <span class="flex items-center">
@@ -151,6 +157,7 @@
           </div>
         </div>
       </div>
+      </a>
     {:else}
       <div class="col-span-2 text-center py-12">
         <p class="text-gray-500 text-lg">No projects yet. <a href="/create" class="text-blue-600 hover:underline">Create the first one!</a></p>
