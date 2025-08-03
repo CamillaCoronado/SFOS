@@ -16,6 +16,7 @@ export interface User {
   avatar?: string;
   bio?: string;
   joinedAt: Date;
+  userType: 'civic-hacker' | 'government' | 'resident-org';
 }
 
 export const currentUser = writable<User | null>(null);

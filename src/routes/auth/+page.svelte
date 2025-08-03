@@ -3,7 +3,8 @@
   import { login, register } from '$lib/stores/auth/auth';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  
+ 
+  let userType: 'civic-hacker' | 'government' | 'resident-org' = 'civic-hacker';
   let isLogin = true;
   let email = '';
   let password = '';
@@ -33,7 +34,7 @@
           loading = false;
           return;
         }
-        result = await register(username, email, password);
+        result = await register(username, email, password, userType);
       }
 
       
@@ -122,6 +123,17 @@
               placeholder="john@example.com"
             />
           </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                I am a...
+            </label>
+            <select bind:value={userType} class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                <option value="civic-hacker">Civic Hacker</option>
+                <option value="government">Government</option>
+                <option value="resident-org">Resident/Civic Organization</option>
+            </select>
         </div>
 
         <div>

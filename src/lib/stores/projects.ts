@@ -29,6 +29,7 @@ export interface Project {
     status: 'draft' | 'published' | 'archived';
     authorId: string;
     authorName: string;
+    authorType: 'civic-hacker' | 'government' | 'resident-org';
     upvotes: number;
     downvotes: number;
     score: number;
@@ -83,6 +84,7 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
       status: 'published',
       authorId: user.id,
       authorName: user.username,
+      authorType: user.userType,
       upvotes: 0,
       downvotes: 0,
       score: 0,
