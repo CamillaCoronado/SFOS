@@ -87,7 +87,9 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
       downvotes: 0,
       score: 0,
       views: 0,
-      userVote: null
+      userVote: null,
+      githubUrl: projectData.githubUrl || null, // ← Convert undefined to null
+      imageUrl: projectData.imageUrl || null,
     };
     
     const docRef = await addDoc(collection(db, 'projects'), project);
