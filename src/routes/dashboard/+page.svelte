@@ -91,7 +91,7 @@
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <a href="/" class="flex items-center">
-          <div class="w-8 h-8 bg-orange-500 rounded-full"></div>
+          <img alt= "logo" src="/logo.png" class="w-8 h-8 object-cover">
           <span class="ml-2 text-orange-500 text-xl font-semibold">SFOS</span>
         </a>
         

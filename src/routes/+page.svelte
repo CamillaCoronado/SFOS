@@ -36,7 +36,7 @@ function handleDownvote(projectId: string) {
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <div class="flex items-center">
-          <div class="w-8 h-8 bg-orange-500 rounded-full"></div>
+          <img alt= "logo" src="/logo.png" class="w-8 h-8 object-cover">
           <span class="ml-2 text-orange-500 text-xl font-semibold">SFOS</span>
         </div>
         
@@ -52,8 +52,8 @@ function handleDownvote(projectId: string) {
   </header>
 
   <!-- Search Bar -->
-  <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 mt-[72px] inline-block">
-    <div class="flex max-w-md">
+  <div class="w-full mx-auto px-4 mt-[72px] inline-block">
+    <div class="flex w-full md:max-w-md">
       <input
         type="text"
         bind:value={searchQuery}
@@ -69,14 +69,15 @@ function handleDownvote(projectId: string) {
   </div>
 
   <!-- Hero Section -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+  <section class="mx-auto px-4 mt-8">
     <div class="grid md:grid-cols-2 gap-12 items-center">
       <div>
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-          The platform that connects civil leaders with technical people.
+          A platform for government, community, and technologists to connect and build towards a better SF.
         </h1>
+        <!-- <h2>SFOS</h2> -->
         <p class="mt-6 text-lg text-gray-600">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          <bold>SF OS</bold> is a community-driven library of civic technology ideas, active projects, and actionable policies, ranging from big-picture visions to projects getting built right now. 
         </p>
         <button class="mt-8 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 cursor-pointer">
           Create a Project
@@ -91,7 +92,7 @@ function handleDownvote(projectId: string) {
   </section>
 
   <!-- How It Works -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+  <section class="mx-auto px-4 sm:px-6 lg:px-8 mt-8">
     <h2 class="text-3xl font-bold text-gray-900 mb-12">How SFOS Works</h2>
     <div class="space-y-8">
       <!-- Step 1 -->
@@ -102,30 +103,52 @@ function handleDownvote(projectId: string) {
           </svg>
         </div>
         <div class="flex-1">
+          <h2 class= "text-3xl">Civic Hackers</h2>
           <p class="text-gray-700">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore. <a href="#" class="text-blue-600 hover:underline">learn more</a>.
+            Explore existing ideas, find teammates, and turn your projects into reality.
+            Share your solutions, get direct feedback from government and community experts, and discover more ways to contribute to civic tech across San Francisco. 
+            <a href="#" class="text-blue-600 hover:underline">learn more</a>.
           </p>
         </div>
       </div>
       
       <!-- Step 2 -->
-      <div class="flex items-start space-x-4">
+      <div class="flex items-start space-x-4 border-b pb-8">
         <div class="flex-shrink-0 w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center">
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
           </svg>
         </div>
         <div class="flex-1">
+          <h2 class= "text-3xl">Government</h2>
           <p class="text-gray-700">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. <a href="#" class="text-blue-600 hover:underline">learn more</a>.
+            Post tech challenges and ideas that civic technologists can tackle.
+            Offer your insights to guide projects toward real-world impact and find innovative solutions faster.
+            <a href="#" class="text-blue-600 hover:underline">learn more</a>.
           </p>
         </div>
       </div>
+      <div class="flex items-start space-x-4 border-b pb-8">
+        <div class="flex-shrink-0 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1a1 1 0 012 0v1a1 1 0 11-2 0zM12 14a1 1 0 00-.707.293l-.707.707a1 1 0 101.414 1.414l.707-.707A1 1 0 0012 14zM4.343 12.343a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414-1.414l-.707-.707z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h2 class= "text-3xl">Residents & Civic Organizations</h2>
+          <p class="text-gray-700">
+            Suggest projects addressing your community’s needs, help shape ongoing initiatives, and let technologists know what would truly benefit your neighborhood.
+            <a href="#" class="text-blue-600 hover:underline">learn more</a>.
+          </p>
+        </div>
+      </div>
+
+      
     </div>
   </section>
 
   <!-- Popular Projects -->
-  <section class="max-w-7xl sm:px-6 lg:px-8 mt-8 mb-4">
+  <section class="sm:px-6 lg:px-8 mt-8 mb-4">
   <h2 class="text-3xl font-bold text-gray-900 mb-8 pl-4">Popular Projects</h2>
   
  <div class="grid md:grid-cols-2 gap-6">
