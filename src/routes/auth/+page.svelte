@@ -75,11 +75,11 @@
     <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
       {isLogin ? 'Sign in to your account' : 'Create your account'}
     </h2>
-    <p class="mt-2 text-center text-sm text-gray-600">
+    <p class="cursor-pointer mt-2 text-center text-sm text-gray-600">
       {isLogin ? "Don't have an account?" : 'Already have an account?'}
       <button 
-        on:click={toggleMode} 
-        class="font-medium text-orange-600 hover:text-orange-500"
+        onclick={toggleMode} 
+        class="cursor-pointer font-medium text-orange-600 hover:text-orange-500"
       >
         {isLogin ? 'Sign up' : 'Sign in'}
       </button>
@@ -89,7 +89,7 @@
   <!-- Form -->
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-      <form on:submit|preventDefault={handleSubmit} class="space-y-6">
+      <form onsubmit={handleSubmit} class="space-y-6">
         {#if !isLogin}
           <div>
             <label for="username" class="block text-sm font-medium text-gray-700">

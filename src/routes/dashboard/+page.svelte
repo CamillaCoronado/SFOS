@@ -228,7 +228,7 @@
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-900">My Projects ({myProjects.length})</h2>
           <a 
-            href="/project-form"
+            href="/create"
             class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
           >
             Create New Project

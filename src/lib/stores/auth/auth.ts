@@ -1,6 +1,13 @@
-// src/lib/stores/auth.ts
+// src/lib/stores/auth.ts (replace the whole file)
 import { writable } from 'svelte/store';
-import { browser } from '$app/environment';
+import { auth } from '$lib/firebase';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  type User as FirebaseUser
+} from 'firebase/auth';
 
 export interface User {
   id: string;
@@ -11,149 +18,70 @@ export interface User {
   joinedAt: Date;
 }
 
-// Mock users database
-const mockUsers: User[] = [
-  {
-    id: 'user1',
-    username: 'johndoe',
-    email: 'john@example.com',
-    avatar: '/default-avatar.jpg',
-    bio: 'Full-stack developer passionate about civic tech.',
-    joinedAt: new Date('2024-01-15')
-  },
-  {
-    id: 'user2',
-    username: 'sarah_chen',
-    email: 'sarah@example.com',
-    avatar: '/default-avatar.jpg',
-    bio: 'UX designer focused on accessibility.',
-    joinedAt: new Date('2024-02-10')
-  },
-  {
-    id: 'user3',
-    username: 'alex_rivera',
-    email: 'alex@example.com',
-    avatar: '/default-avatar.jpg',
-    bio: 'Policy researcher and data analyst.',
-    joinedAt: new Date('2024-01-20')
-  }
-];
-
-// Current user store
 export const currentUser = writable<User | null>(null);
 
-// Load user from localStorage on init
-if (browser) {
-  const stored = localStorage.getItem('currentUser');
-  if (stored) {
-    try {
-      const user = JSON.parse(stored);
-      // Convert joinedAt back to Date
-      user.joinedAt = new Date(user.joinedAt);
-      currentUser.set(user);
-    } catch (e) {
-      localStorage.removeItem('currentUser');
-    }
+// map firebase user to your interface
+function mapFirebaseUser(firebaseUser: FirebaseUser): User {
+  return {
+    id: firebaseUser.uid,
+    username: firebaseUser.email?.split('@')[0] || 'user',
+    email: firebaseUser.email || '',
+    avatar: firebaseUser.photoURL || undefined,
+    bio: '',
+    joinedAt: new Date(firebaseUser.metadata.creationTime || Date.now())
+  };
+}
+
+// listen for auth changes
+onAuthStateChanged(auth, (firebaseUser) => {
+  if (firebaseUser) {
+    currentUser.set(mapFirebaseUser(firebaseUser));
+  } else {
+    currentUser.set(null);
+  }
+});
+
+export async function login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    console.log('attempting login with:', email);
+    await signInWithEmailAndPassword(auth, email, password);
+    return { success: true };
+  } catch (error: any) {
+    console.error('full firebase error:', error); // debug
+    return { success: false, error: error.message };
   }
 }
 
-// Subscribe to changes and save to localStorage
-if (browser) {
-  currentUser.subscribe(user => {
-    if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('currentUser');
-    }
-  });
+export async function register(username: string, email: string, password: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+     // TODO: later save username to firestore user profile
+    return { success: true };
+  } catch (error: any) {
+    console.log('Firebase error details:');
+    console.log('- code:', error.code);
+    console.log('- message:', error.message);
+    console.log('- full error:', error);
+    return { success: false, error: error.message };
+  }
 }
 
-export function login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
-  return new Promise((resolve) => {
-    // Simulate API delay
-    setTimeout(() => {
-      const user = mockUsers.find(u => u.email === email);
-      
-      if (!user) {
-        resolve({ success: false, error: 'User not found' });
-        return;
-      }
-      
-      // Mock password check (password should be "password" for all users)
-      if (password !== 'password') {
-        resolve({ success: false, error: 'Invalid password' });
-        return;
-      }
-      
-      currentUser.set(user);
-      resolve({ success: true });
-    }, 500);
-  });
+export async function logout(): Promise<void> {
+  await signOut(auth);
 }
 
-export function register(username: string, email: string, password: string): Promise<{ success: boolean; error?: string }> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Check if user already exists
-      if (mockUsers.find(u => u.email === email)) {
-        resolve({ success: false, error: 'Email already exists' });
-        return;
-      }
-      
-      if (mockUsers.find(u => u.username === username)) {
-        resolve({ success: false, error: 'Username already taken' });
-        return;
-      }
-      
-      // Create new user
-      const newUser: User = {
-        id: `user${Date.now()}`,
-        username,
-        email,
-        avatar: '/default-avatar.jpg',
-        bio: '',
-        joinedAt: new Date()
-      };
-      
-      mockUsers.push(newUser);
-      currentUser.set(newUser);
-      resolve({ success: true });
-    }, 500);
-  });
+// keep these for compatibility (can implement later with firestore)
+export async function updateProfile(updates: Partial<Omit<User, 'id' | 'joinedAt'>>): Promise<{ success: boolean; error?: string }> {
+  // TODO: implement with firestore user profiles
+  console.log('updateProfile not implemented yet');
+  return { success: false, error: 'Not implemented' };
 }
 
-export function logout(): void {
-  currentUser.set(null);
-}
-
-export function updateProfile(updates: Partial<Omit<User, 'id' | 'joinedAt'>>): Promise<{ success: boolean; error?: string }> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      currentUser.update(user => {
-        if (!user) return user;
-        
-        const updatedUser = { ...user, ...updates };
-        
-        // Update in mock database
-        const index = mockUsers.findIndex(u => u.id === user.id);
-        if (index !== -1) {
-          mockUsers[index] = updatedUser;
-        }
-        
-        return updatedUser;
-      });
-      
-      resolve({ success: true });
-    }, 300);
-  });
-}
-
-// Helper to get user by id (for displaying other users)
 export function getUserById(id: string): User | undefined {
-  return mockUsers.find(u => u.id === id);
+  // TODO: implement with firestore user profiles  
+  return undefined;
 }
 
-// Check if user is authenticated
 export function isAuthenticated(): boolean {
   let authenticated = false;
   currentUser.subscribe(user => {

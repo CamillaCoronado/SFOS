@@ -1,7 +1,8 @@
 <!-- src/routes/projects/+page.svelte -->
 <script lang="ts">
-  import { projects, upvoteProject, downvoteProject } from '$lib/stores/projects';
+  import { projects } from '$lib/stores/projects';
   import type { Project } from '$lib/stores/projects';
+  import ProjectCard from '$lib/components/ProjectCard.svelte';
   
   let searchQuery = '';
   let selectedTags: string[] = [];
@@ -30,21 +31,7 @@
                        selectedTags.some(tag => project.tags.includes(tag));
     return matchesSearch && matchesTags;
   });
-  
-  function toggleTag(tag: string) {
-    if (selectedTags.includes(tag)) {
-      selectedTags = selectedTags.filter(t => t !== tag);
-    } else {
-      selectedTags = [...selectedTags, tag];
-    }
-  }
 
-  function truncateTitle(title: string, maxLength: number) {
-    if (title.length <= maxLength) return title;
-    const truncated = title.slice(0, maxLength);
-    const lastSpace = truncated.lastIndexOf(' ');
-    return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '...';
-  }
   
   const backgroundColors = [
     'bg-orange-100',
@@ -125,107 +112,32 @@
       <h2 class="text-2xl font-bold text-gray-900 mb-6">Popular Projects</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {#each popularProjects as project, index}
-          <a href="/project/{project.id}" class="block group">
-            <div class="relative {backgroundColors[index % backgroundColors.length]} rounded-lg p-6 group-hover:shadow-md transition-shadow">
-              <!-- Overlapping circles -->
-              <div class="absolute top-4 right-4 flex">
-                <div class="w-8 h-8 bg-orange-500 rounded-full"></div>
-                <div class="w-8 h-8 bg-blue-500 rounded-full -ml-2"></div>
-              </div>
-              
-              <div class="relative z-10">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">{truncateTitle(project.title, 25)}</h3>
-                <p class="text-gray-700 text-sm mb-4">{project.description.length > 100 ? project.description.slice(0, 100) + '...' : project.description}</p>
-                
-                <!-- Tags -->
-                <div class="flex flex-wrap gap-1 mb-4">
-                    {#each project.tags.slice(0, 3) as tag}
-                        <span class="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-                        {tag.length > 10 ? tag.slice(0, 10) + '...' : tag}
-                        </span>
-                    {/each}
-                </div>
-                
-                <!-- Stats -->
-                <div class="flex items-center text-gray-600 text-sm">
-                  <div class="flex items-center mr-4">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                    </svg>
-                   
-                  </div>
-                  <span>  {project.score} </span>
-                  <div class="flex items-center mr-4">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                  </div>
-                  <div class="flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                    </svg>
-                    {project.comments}
-                  </div>
-                </div>
-              </div>
+        {#each $projects.slice(0, 4) as project, index}
+            <ProjectCard 
+                {project} 
+                variant="popular" 
+        />
+        {:else}
+            <div class="text-center py-12">
+                <p class="text-gray-500">No projects found.</p>
             </div>
-          </a>
         {/each}
       </div>
     </section>
 
-    <!-- Projects by Category -->
-    {#each Object.entries(projectsByCategory) as [category, categoryProjects]}
-      <section class="mb-12">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6 capitalize">{category}</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {#each categoryProjects as project}
-            <a href="/project/{project.id}" class="block group">
-              <div class="bg-white min-w-[297px] w-[297px] rounded-lg border border-gray-200 p-6 group-hover:shadow-md transition-shadow">
-                <!-- Overlapping circles -->
-                <div class="flex justify-end mb-4">
-                  <div class="w-6 h-6 bg-orange-500 rounded-full"></div>
-                  <div class="w-6 h-6 bg-blue-500 rounded-full -ml-2"></div>
-                </div>
-                
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">{project.title.length > 40 ? project.title.slice(0, 40) + '...' : project.title}</h3>
-                <p class="text-gray-700 text-sm mb-4 line-clamp-3">{project.description}</p>
-                
-                <!-- Tags -->
-                <div class="flex flex-wrap gap-1 mb-4">
-                  {#each project.tags.slice(0, 3) as tag}
-                    <span class="bg-blue-500 text-white px-2 py-1 rounded text-xs">{tag}</span>
-                  {/each}
-                </div>
-                
-                <!-- Stats -->
-                <div class="flex items-center text-gray-600 text-sm">
-                  <div class="flex items-center mr-4">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                    </svg>
-                    {project.upvotes}
-                  </div>
-                  <div class="flex items-center mr-4">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                    {project.downvotes}
-                  </div>
-                  <div class="flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                    </svg>
-                    {project.comments}
-                  </div>
-                </div>
-              </div>
-            </a>
-          {/each}
-        </div>
-      </section>
-    {/each}
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">All Projects</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {#each $projects as project}
+            <ProjectCard {project} variant="standard" />
+        {:else}
+            <div class="text-center py-12">
+                <p class="text-gray-500">No projects found.</p>
+            </div>
+        {/each}
+      </div>
+    </section>
+  
   </div>
 </div>
