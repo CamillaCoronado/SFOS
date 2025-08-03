@@ -29,6 +29,7 @@ export interface Project {
     status: 'draft' | 'published' | 'archived';
     authorId: string;
     authorName: string;
+    authorType: 'civic-hacker' | 'government' | 'resident-org';
     upvotes: number;
     downvotes: number;
     score: number;
@@ -66,7 +67,7 @@ export async function loadProjects() {
   }
 }
 
-export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status'>) {
+export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status' | 'authorType'> & { authorType: string }) {
   try {
     const user = get(currentUser);
     if (!user) {

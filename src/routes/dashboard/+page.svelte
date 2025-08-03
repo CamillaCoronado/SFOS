@@ -4,7 +4,7 @@
   import { currentUser, logout } from '$lib/stores/auth/auth';
   
   // mock notifications
-  const notifications = [
+  export const notifications = [
     {
       id: '1',
       type: 'upvote',

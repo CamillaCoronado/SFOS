@@ -79,7 +79,7 @@ function handleDownvote(projectId: string) {
         <p class="mt-6 text-lg text-gray-600">
           <bold>SF OS</bold> is a community-driven library of civic technology ideas, active projects, and actionable policies, ranging from big-picture visions to projects getting built right now. 
         </p>
-        <button class="mt-8 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 cursor-pointer">
+        <button onclick={() => goto('/auth?mode=register')} class="mt-8 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 cursor-pointer">
           Create a Project
         </button>
       </div>

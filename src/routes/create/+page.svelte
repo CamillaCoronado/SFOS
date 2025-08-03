@@ -12,6 +12,7 @@
   let duration: string = '';
   let contactMethod: 'discord' | 'email' | 'github' | 'other' = 'email';
   let contactInfo: string = '';
+  let userType: 'civic-hacker' | 'government' | 'resident-org' = 'civic-hacker';
   
   let isLoading = false;
   let error: string | null = null;
@@ -32,7 +33,8 @@
         timeCommitment,
         duration,
         contactMethod,
-        contactInfo
+        contactInfo,
+        authorType: userType
       });
       
       await goto('/projects'); // Wait for navigation
