@@ -67,7 +67,7 @@ export async function loadProjects() {
   }
 }
 
-export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status'>) {
+export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status' | 'authorType'> & { authorType: string }) {
   try {
     const user = get(currentUser);
     if (!user) {
@@ -84,7 +84,6 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
       status: 'published',
       authorId: user.id,
       authorName: user.username,
-      authorType: user.userType,
       upvotes: 0,
       downvotes: 0,
       score: 0,

@@ -4,13 +4,13 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
  
-  let userType: 'civic-hacker' | 'government' | 'resident-org' = 'civic-hacker';
   let isLogin = true;
   let email = '';
   let password = '';
   let username = '';
   let loading = false;
   let error = '';
+  let userType= '';
   
   // Check if we should default to register mode
   $: if ($page.url.searchParams.get('mode') === 'register') {
@@ -34,7 +34,7 @@
           loading = false;
           return;
         }
-        result = await register(username, email, password, userType);
+        result = await register(username, email, password);
       }
 
       
@@ -59,7 +59,7 @@
     // Clear form
     email = '';
     password = '';
-    username = '';
+    userType = '';
   }
 </script>
 
@@ -93,20 +93,15 @@
       <form onsubmit={handleSubmit} class="space-y-6">
         {#if !isLogin}
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-700">
-              Username
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                I am a...
             </label>
-            <div class="mt-1">
-              <input
-                id="username"
-                type="text"
-                bind:value={username}
-                required={!isLogin}
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                placeholder="johndoe"
-              />
-            </div>
-          </div>
+            <select bind:value={userType} class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                <option value="civic-hacker">Civic Hacker</option>
+                <option value="government">Government</option>
+                <option value="resident-org">Resident/Civic Organization</option>
+            </select>
+        </div>
         {/if}
 
         <div>
@@ -124,18 +119,6 @@
             />
           </div>
         </div>
-
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                I am a...
-            </label>
-            <select bind:value={userType} class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                <option value="civic-hacker">Civic Hacker</option>
-                <option value="government">Government</option>
-                <option value="resident-org">Resident/Civic Organization</option>
-            </select>
-        </div>
-
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">
             Password
@@ -176,19 +159,6 @@
           </button>
         </div>
       </form>
-
-      <!-- {#if isLogin}
-        <div class="mt-6">
-          <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <h3 class="text-sm font-medium text-blue-800 mb-2">Demo Accounts</h3>
-            <div class="text-xs text-blue-700 space-y-1">
-              <p><strong>john@example.com</strong> - password</p>
-              <p><strong>sarah@example.com</strong> - password</p>
-              <p><strong>alex@example.com</strong> - password</p>
-            </div>
-          </div>
-        </div>
-      {/if} -->
     </div>
   </div>
 </div>
