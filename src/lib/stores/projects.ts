@@ -1,5 +1,18 @@
-
+// src/lib/stores/firebase-projects.ts
 import { writable } from 'svelte/store';
+import { db } from '$lib/firebase';
+import { currentUser } from '$lib/stores/auth/auth';
+import { get } from 'svelte/store';
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  query, 
+  orderBy, 
+  updateDoc, 
+  doc,
+  Timestamp
+} from 'firebase/firestore';
 
 type ProjectCategory = 'idea' | 'fleshed-out' | 'policy-proposal';
 
@@ -19,7 +32,7 @@ export interface Project {
     upvotes: number;
     downvotes: number;
     score: number;
-    views: number; //can implement later
+    views: number;
     imageUrl?: string;
     userVote?: 'up' | 'down' | null;
     experienceLevel: 'beginner' | 'intermediate' | 'advanced';
@@ -29,124 +42,129 @@ export interface Project {
     contactInfo: string;
 }
 
-const dummyProjects: Project[] = [
-  {
-    id: '1',
-    title: 'AI-Powered Code Review Tool',
-    description: 'Building an intelligent code review system that uses machine learning to catch bugs and suggest improvements automatically.',
-    tags: ['ai', 'machine-learning', 'dev-tools'],
-    comments: 12,
-    avatars: [],
-    githubUrl: 'https://github.com/example/code-review-ai',
-    createdAt: new Date('2025-07-15'),
-    updatedAt: new Date('2025-07-20'),
-    status: 'published',
-    authorId: 'user1',
-    authorName: 'Sarah Chen',
-    upvotes: 24,
-    downvotes: 3,
-    score: 21,
-    views: 156,
-    userVote: null,
-    experienceLevel: 'advanced',
-    timeCommitment: '10-15 hours/week',
-    duration: '3-4 months',
-    contactMethod: 'discord',
-    contactInfo: 'sarahc#1234'
-  },
-  {
-    id: '2', 
-    title: 'Local Food Waste Tracker',
-    description: 'Mobile app to help restaurants and cafes track food waste and connect with local charities for donation pickup.',
-    tags: ['mobile', 'sustainability', 'social-impact'],
-    comments: 8,
-    avatars: [],
-    createdAt: new Date('2025-07-18'),
-    updatedAt: new Date('2025-07-18'),
-    status: 'published',
-    authorId: 'user2',
-    authorName: 'Marcus Johnson',
-    upvotes: 18,
-    downvotes: 1,
-    score: 17,
-    views: 89,
-    userVote: null,
-    experienceLevel: 'intermediate',
-    timeCommitment: '5-8 hours/week',
-    duration: '2 months',
-    contactMethod: 'email',
-    contactInfo: 'marcus.j@email.com'
-  },
-  {
-    id: '3',
-    title: 'Open Source Design System',
-    description: 'Creating a comprehensive design system with components, tokens, and guidelines for non-profit organizations.',
-    tags: ['design', 'open-source', 'ui/ux'],
-    comments: 23,
-    avatars: [],
-    createdAt: new Date('2025-07-10'),
-    updatedAt: new Date('2025-07-22'),
-    status: 'published',
-    authorId: 'user3',
-    authorName: 'Alex Rivera',
-    upvotes: 32,
-    downvotes: 2,
-    score: 30,
-    views: 234,
-    userVote: null,
-    experienceLevel: 'beginner',
-    timeCommitment: '3-5 hours/week',
-    duration: 'ongoing',
-    contactMethod: 'github',
-    contactInfo: 'github.com/alexr'
+export const projects = writable<Project[]>([]);
+
+// load projects from firestore
+export async function loadProjects() {
+  try {
+    const q = query(collection(db, 'projects'), orderBy('score', 'desc'));
+    const snapshot = await getDocs(q);
+    const projectsData = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        // convert firestore timestamps back to dates
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+      };
+    }) as Project[];
+    
+    projects.set(projectsData);
+  } catch (error) {
+    console.error('Error loading projects:', error);
   }
-];
-
-export const projects = writable<Project[]>(dummyProjects);
-
-//export const projects = writable<Project[]>([]);
-
-export function addProject(projectData: Omit<Project, 'id' | 'contributors' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status'>) {
-  const project: Project = {
-    ...projectData,
-    id: crypto.randomUUID(),
-    comments: 0,
-    avatars: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    status: 'published',
-    authorId: 'temp-user', // mock for now
-    authorName: 'Anonymous', // mock for now
-    upvotes: 0,
-    downvotes: 0,
-    score: 0,
-    views: 0,
-    userVote: null
-  };
-  
-  projects.update(current => [project, ...current]);
-  return project.id;
 }
 
-export function upvoteProject(projectId: string) {
-  projects.update(current => 
-    current.map(project => 
-      project.id === projectId 
-        ? { ...project, upvotes: project.upvotes + 1, score: project.score + 1 }
-        : project
-    )
-  );
+export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status'>) {
+  try {
+    const user = get(currentUser);
+    if (!user) {
+      console.error('User not authenticated');
+      return null;
+    }
+
+    const project = {
+      ...projectData,
+      comments: 0,
+      avatars: [],
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      status: 'published',
+      authorId: user.id,
+      authorName: user.username,
+      upvotes: 0,
+      downvotes: 0,
+      score: 0,
+      views: 0,
+      userVote: null
+    };
+    
+    const docRef = await addDoc(collection(db, 'projects'), project);
+    await loadProjects(); // refresh the store
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding project:', error);
+    return null;
+  }
 }
 
-export function downvoteProject(projectId: string) {
-  projects.update(current => 
-    current.map(project => 
-      project.id === projectId 
-        ? { ...project, downvotes: project.downvotes + 1, score: project.score - 1 }
-        : project
-    )
-  );
+export async function upvoteProject(projectId: string) {
+  try {
+    const user = get(currentUser);
+    if (!user) {
+      console.error('User not authenticated');
+      return;
+    }
+
+    // update in firestore
+    const projectRef = doc(db, 'projects', projectId);
+    
+    // get current project data to calculate new score
+    const currentProjects = get(projects);
+    const project = currentProjects.find(p => p.id === projectId);
+    if (!project) return;
+
+    await updateDoc(projectRef, {
+      upvotes: project.upvotes + 1,
+      score: project.score + 1,
+      updatedAt: Timestamp.now()
+    });
+
+    // update local store immediately for better UX
+    projects.update(current => 
+      current.map(p => 
+        p.id === projectId 
+          ? { ...p, upvotes: p.upvotes + 1, score: p.score + 1 }
+          : p
+      )
+    );
+  } catch (error) {
+    console.error('Error upvoting project:', error);
+  }
 }
 
+export async function downvoteProject(projectId: string) {
+  try {
+    const user = get(currentUser);
+    if (!user) {
+      console.error('User not authenticated');
+      return;
+    }
 
+    // update in firestore
+    const projectRef = doc(db, 'projects', projectId);
+    
+    // get current project data to calculate new score
+    const currentProjects = get(projects);
+    const project = currentProjects.find(p => p.id === projectId);
+    if (!project) return;
 
+    await updateDoc(projectRef, {
+      downvotes: project.downvotes + 1,
+      score: project.score - 1,
+      updatedAt: Timestamp.now()
+    });
+
+    // update local store immediately for better UX
+    projects.update(current => 
+      current.map(p => 
+        p.id === projectId 
+          ? { ...p, downvotes: p.downvotes + 1, score: p.score - 1 }
+          : p
+      )
+    );
+  } catch (error) {
+    console.error('Error downvoting project:', error);
+  }
+}

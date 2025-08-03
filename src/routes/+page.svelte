@@ -1,8 +1,32 @@
 <script lang="ts">
     import { downvoteProject, projects, upvoteProject } from '$lib/stores/projects';
+    import { currentUser } from '$lib/stores/auth/auth';
+    import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
+    import ProjectCard from '$lib/components/ProjectCard.svelte';
+
 
     let searchQuery = '';
-    $: sortedProjects = $projects.sort((a, b) => b.score - a.score);
+
+    function handleUpvote(projectId: string) {
+  if (!$currentUser) {
+    if (confirm('You need to log in to vote. Redirect to login?')) {
+      goto(`/auth?redirect=${encodeURIComponent($page.url.pathname)}`);
+    }
+    return;
+  }
+  upvoteProject(projectId);
+}
+
+function handleDownvote(projectId: string) {
+  if (!$currentUser) {
+    if (confirm('You need to log in to vote. Redirect to login?')) {
+      goto(`/auth?redirect=${encodeURIComponent($page.url.pathname)}`);
+    }
+    return;
+  }
+  downvoteProject(projectId);
+}
 </script>
 
 <div class="min-h-screen bg-gray-50">
@@ -18,8 +42,8 @@
         
         <!-- Nav -->
         <div class="flex items-center space-x-4">
-          <button class="text-gray-700 hover:text-gray-900 cursor-pointer text-sm">Log in</button>
-          <button class="bg-orange-500 text-sm text-white px-4 py-2 rounded-full hover:bg-orange-600 cursor-pointer">
+          <button onclick={() => goto('/auth?mode=login')} class="text-gray-700 hover:text-gray-900 cursor-pointer text-sm">Log in</button>
+          <button onclick={() => goto('/auth?mode=register')} class="bg-orange-500 text-sm text-white px-4 py-2 rounded-full hover:bg-orange-600 cursor-pointer">
             Sign up
           </button>
         </div>
@@ -104,64 +128,17 @@
   <section class="max-w-7xl sm:px-6 lg:px-8 mt-8 mb-4">
   <h2 class="text-3xl font-bold text-gray-900 mb-8 pl-4">Popular Projects</h2>
   
-  <div class="grid md:grid-cols-2 gap-6">
-    {#each sortedProjects as project}
-    <a href="/project/{project.id}" class="block hover:shadow-md transition-shadow">
-      <div class="bg-white shadow-sm border border-gray-200 p-6">
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
-        <p class="text-gray-600 mb-4">
-          {project.description}
-        </p>
-        
-        <!-- Tags -->
-        <div class="flex flex-wrap gap-2 mb-4">
-          {#each project.tags as tag}
-            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">{tag}</span>
-          {/each}
-        </div>
-        
-        <!-- Stats -->
-        <div class="flex items-center justify-between text-gray-500">
-          <div class="flex items-center space-x-4">
-            <span class="flex items-center">
-                <button onclick={() => upvoteProject(project.id)}>
-                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                    </svg>
-                </button>
-                </span>
-                <span>{project.score}</span>
-                <span class="flex items-center">
-                <button onclick={() => downvoteProject(project.id)}>
-                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-            </span>
-            <span class="flex items-center">
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-              </svg>
-              {project.comments}
-            </span>
-          </div>
-          <div class="flex -space-x-2">
-            {#each project.avatars.slice(0, 3) as avatar}
-              <img src={avatar} alt="contributor" class="w-8 h-8 rounded-full border-2 border-white" />
-            {:else}
-              <!-- fallback avatars when no real ones -->
-              <div class="w-8 h-8 bg-gray-300 rounded-full border-2 border-white"></div>
-              <div class="w-8 h-8 bg-gray-400 rounded-full border-2 border-white"></div>
-            {/each}
-          </div>
-        </div>
-      </div>
-      </a>
-    {:else}
-      <div class="col-span-2 text-center py-12">
-        <p class="text-gray-500 text-lg">No projects yet. <a href="/create" class="text-blue-600 hover:underline">Create the first one!</a></p>
-      </div>
-    {/each}
-  </div>
+ <div class="grid md:grid-cols-2 gap-6">
+ {#each $projects.slice(0, 3) as project, index}
+   <ProjectCard 
+     {project} 
+     variant="popular"
+   />
+{:else}
+   <div class="col-span-2 text-center py-12">
+     <p class="text-gray-500 text-lg">No projects yet. <a href="/create" class="text-blue-600 hover:underline">Create the first one!</a></p>
+   </div>
+ {/each}
+</div>
 </section>
 </div>

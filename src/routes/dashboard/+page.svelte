@@ -1,17 +1,7 @@
-<!-- src/routes/dashboard/+page.svelte -->
 <script lang="ts">
   import { projects } from '$lib/stores/projects';
   import { goto } from '$app/navigation';
-  
-  // mock current user - will be from auth store later
-  const currentUser = {
-    id: 'user1',
-    username: 'johndoe',
-    email: 'john@example.com',
-    avatar: '/default-avatar.jpg',
-    bio: 'Full-stack developer passionate about open source projects.',
-    joinedAt: new Date('2024-01-15')
-  };
+  import { currentUser, logout } from '$lib/stores/auth/auth';
   
   // mock notifications
   const notifications = [
@@ -46,7 +36,7 @@
   let showNotifications = false;
   
   // get user's projects
-  $: myProjects = $projects.filter(project => project.authorId === currentUser.id);
+  $: myProjects = $projects.filter(project => project.authorId === $currentUser?.id);
   
   // find most popular project
   $: mostPopularProject = myProjects.length > 0 
@@ -78,10 +68,6 @@
   
   function editProfile() {
     console.log('Edit profile');//mocks
-  }
-  
-  function logout() {
-    console.log('Logout');//mocks
   }
   
   function markAsRead(notificationId: string) {
@@ -162,8 +148,8 @@
               onclick={() => showProfileMenu = !showProfileMenu}
               class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 text-sm"
             >
-              <img src={currentUser.avatar} alt="profile" class="w-6 h-6 rounded-full bg-gray-300" />
-              <span>{currentUser.username}</span>
+              <img src={$currentUser?.avatar} alt="profile" class="w-6 h-6 rounded-full bg-gray-300" />
+              <span>{$currentUser?.username}</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
@@ -194,7 +180,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Welcome Section -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome back, {currentUser.username}!</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome back, {$currentUser?.username}!</h1>
         <p class="text-gray-600 mb-6">Manage your projects and track your impact.</p>
         
         <!-- Search Bar -->
@@ -242,7 +228,7 @@
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-900">My Projects ({myProjects.length})</h2>
           <a 
-            href="/project-form"
+            href="/create"
             class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
           >
             Create New Project
@@ -258,7 +244,7 @@
                   <div class="flex space-x-1">
                     <button 
                       onclick={() => editProject(project.id)}
-                      class="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                      class="cursor-pointer p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
                       title="Edit"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,7 +253,7 @@
                     </button>
                     <button 
                       onclick={() => duplicateProject(project.id)}
-                      class="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded"
+                      class="cursor-pointer p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded"
                       title="Duplicate"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -276,7 +262,7 @@
                     </button>
                     <button 
                       onclick={() => deleteProject(project.id)}
-                      class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                      class="cursor-pointer p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
                       title="Delete"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
