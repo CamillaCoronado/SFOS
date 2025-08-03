@@ -165,7 +165,7 @@
         </div>
       </form>
 
-      {#if isLogin}
+      <!-- {#if isLogin}
         <div class="mt-6">
           <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
             <h3 class="text-sm font-medium text-blue-800 mb-2">Demo Accounts</h3>
@@ -176,7 +176,7 @@
             </div>
           </div>
         </div>
-      {/if}
+      {/if} -->
     </div>
   </div>
 </div>
