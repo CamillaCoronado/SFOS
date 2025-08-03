@@ -1,6 +1,6 @@
-<!-- src/routes/create/+page.svelte -->
 <script lang="ts">
-  import type { Project } from '$lib/stores/projects';
+  import { addProject } from '$lib/stores/projects';
+  import { goto } from '$app/navigation';
   
   let title: string = '';
   let description: string = '';
@@ -10,11 +10,11 @@
   let experienceLevel: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
   let timeCommitment: string = '';
   let duration: string = '';
-  let contactMethod: 'discord' | 'email' | 'github' | 'other' = 'discord';
+  let contactMethod: 'discord' | 'email' | 'github' | 'other' = 'email';
   let contactInfo: string = '';
   
   function handleSubmit() {
-    const project = {
+    const projectId = addProject({
       title,
       description,
       tags: tags.split(',').map(t => t.trim()).filter(t => t),
@@ -25,10 +25,9 @@
       duration,
       contactMethod,
       contactInfo
-    };
+    });
     
-    console.log(project);
-    // TODO: add to store and redirect
+    goto('/projects');
   }
 </script>
 
@@ -37,7 +36,7 @@
     <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-8">
       <h1 class="text-2xl font-semibold text-gray-900 mb-6">Create Project</h1>
       
-      <form on:submit|preventDefault={handleSubmit} class="space-y-6">
+      <form onsubmit={handleSubmit} class="space-y-6">
         <!-- Title -->
         <div>
           <label for="title" class="block text-sm font-medium text-gray-700 mb-2">

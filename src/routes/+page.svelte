@@ -1,5 +1,7 @@
 <script lang="ts">
+    import { projects } from '$lib/stores/projects';
     let searchQuery = '';
+    $: sortedProjects = $projects.sort((a, b) => b.score - a.score);
 </script>
 
 <div class="min-h-screen bg-gray-50">
@@ -99,21 +101,21 @@
 
   <!-- Popular Projects -->
   <section class="max-w-7xl sm:px-6 lg:px-8 mt-8 mb-4">
-    <h2 class="text-3xl font-bold text-gray-900 mb-8 pl-4">Popular Projects</h2>
-    
-    <div class="grid md:grid-cols-2 gap-6">
-      <!-- Project Card 1 -->
+  <h2 class="text-3xl font-bold text-gray-900 mb-8 pl-4">Popular Projects</h2>
+  
+  <div class="grid md:grid-cols-2 gap-6">
+    {#each sortedProjects as project}
       <div class="bg-white shadow-sm border border-gray-200 p-6">
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Some project title or other</h3>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
         <p class="text-gray-600 mb-4">
-          Lorem ipsum dolor sit amet, consectetu, and some description of what it is here
+          {project.description}
         </p>
         
         <!-- Tags -->
         <div class="flex flex-wrap gap-2 mb-4">
-          <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">tags</span>
-          <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm">tags</span>
-          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">tags</span>
+          {#each project.tags as tag}
+            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">{tag}</span>
+          {/each}
         </div>
         
         <!-- Stats -->
@@ -123,59 +125,31 @@
               <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
               </svg>
-              7
+              {project.contributors}
             </span>
             <span class="flex items-center">
               <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
               </svg>
-              7
+              {project.comments}
             </span>
           </div>
           <div class="flex -space-x-2">
-            <div class="w-8 h-8 bg-gray-300 rounded-full border-2 border-white"></div>
-            <div class="w-8 h-8 bg-gray-400 rounded-full border-2 border-white"></div>
+            {#each project.avatars.slice(0, 3) as avatar}
+              <img src={avatar} alt="contributor" class="w-8 h-8 rounded-full border-2 border-white" />
+            {:else}
+              <!-- fallback avatars when no real ones -->
+              <div class="w-8 h-8 bg-gray-300 rounded-full border-2 border-white"></div>
+              <div class="w-8 h-8 bg-gray-400 rounded-full border-2 border-white"></div>
+            {/each}
           </div>
         </div>
       </div>
-      
-      <!-- Project Card 2 -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Some project title or other</h3>
-        <p class="text-gray-600 mb-4">
-          Lorem ipsum dolor sit amet, consectetu, and some description of what it is here
-        </p>
-        
-        <!-- Tags -->
-        <div class="flex flex-wrap gap-2 mb-4">
-          <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">tags</span>
-          <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm">tags</span>
-          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">tags</span>
-        </div>
-        
-        <!-- Stats -->
-        <div class="flex items-center justify-between text-gray-500">
-          <div class="flex items-center space-x-4">
-            <span class="flex items-center">
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-              </svg>
-              7
-            </span>
-            <span class="flex items-center">
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-              </svg>
-              7
-            </span>
-          </div>
-          <div class="flex -space-x-2">
-            <div class="w-8 h-8 bg-orange-400 rounded-full border-2 border-white"></div>
-            <div class="w-8 h-8 bg-gray-400 rounded-full border-2 border-white"></div>
-            <div class="w-8 h-8 bg-blue-400 rounded-full border-2 border-white"></div>
-          </div>
-        </div>
+    {:else}
+      <div class="col-span-2 text-center py-12">
+        <p class="text-gray-500 text-lg">No projects yet. <a href="/create" class="text-blue-600 hover:underline">Create the first one!</a></p>
       </div>
-    </div>
-  </section>
+    {/each}
+  </div>
+</section>
 </div>
