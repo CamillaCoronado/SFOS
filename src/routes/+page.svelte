@@ -148,20 +148,20 @@ function handleDownvote(projectId: string) {
   </section>
 
   <!-- Popular Projects -->
-  <section class="sm:px-6 lg:px-8 mt-8 mb-4">
-  <h2 class="text-3xl font-bold text-gray-900 mb-8 pl-4">Popular Projects</h2>
-  
- <div class="grid md:grid-cols-2 gap-6">
- {#each $projects.slice(0, 3) as project, index}
-   <ProjectCard 
-     {project} 
-     variant="popular"
-   />
-{:else}
-   <div class="col-span-2 text-center py-12">
-     <p class="text-gray-500 text-lg">No projects yet. <a href="/create" class="text-blue-600 hover:underline">Create the first one!</a></p>
-   </div>
- {/each}
-</div>
+<section class="mb-12 mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Popular Projects</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {#each $projects.slice(0, 3) as project, index}
+            <ProjectCard 
+                {project} 
+                variant="popular" 
+        />
+        {:else}
+            <div class="text-center py-12">
+                <p class="text-gray-500">No projects found.</p>
+            </div>
+        {/each}
+      </div>
 </section>
 </div>
