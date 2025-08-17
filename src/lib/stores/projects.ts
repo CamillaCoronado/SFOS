@@ -2,7 +2,7 @@
 import { writable } from 'svelte/store';
 import { db } from '$lib/firebase';
 import { setDoc, getDoc, deleteDoc } from 'firebase/firestore';
-import { currentUser } from '$lib/stores/auth/auth';
+import { currentUser } from './auth/auth';
 import { get } from 'svelte/store';
 import { 
   collection, 
