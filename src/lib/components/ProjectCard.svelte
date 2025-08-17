@@ -1,41 +1,33 @@
 <!-- src/lib/components/ProjectCard.svelte -->
 <script lang="ts">
-  import { upvoteProject, downvoteProject } from '$lib/stores/projects';
+  import { upvoteProject, downvoteProject, getCurrentUserVote } from '$lib/stores/projects';
   import { currentUser } from '$lib/stores/auth/auth';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import type { Project } from '$lib/stores/projects';
+  import type { Project, VoteType} from '$lib/stores/projects';
+
   
-  export let project: Project;
-  export let variant: 'popular' | 'standard' | 'dashboard' = 'standard';
-  export let backgroundColor: string = '';
+  let { 
+    project,
+    variant = 'standard',
+    backgroundColor = ''
+    }: { 
+    project: Project;
+    variant?: 'popular' | 'standard' | 'dashboard';
+    backgroundColor?: string;
+    } = $props();
+    let userVote: VoteType | null = $state(null);
+
   
+    $effect(() => {
+    if ($currentUser && project.id) {
+      getCurrentUserVote(project.id).then(vote => {
+        userVote = vote;
+      });
+    }
+    });
   function truncateTitle(title: string, maxLength: number) {
     return title.length > maxLength ? title.slice(0, maxLength) + '...' : title;
-  }
-  
-  function handleUpvote(e: Event) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!$currentUser) {
-      if (confirm('You need to log in to vote. Redirect to login?')) {
-        goto(`/auth?redirect=${encodeURIComponent($page.url.pathname)}`);
-      }
-      return;
-    }
-    upvoteProject(project.id);
-  }
-  
-  function handleDownvote(e: Event) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!$currentUser) {
-      if (confirm('You need to log in to vote. Redirect to login?')) {
-        goto(`/auth?redirect=${encodeURIComponent($page.url.pathname)}`);
-      }
-      return;
-    }
-    downvoteProject(project.id);
   }
   
   function editProject(e: Event) {
@@ -55,6 +47,7 @@
     e.stopPropagation();
     console.log('Duplicate project:', project.id);
   }
+
 </script>
 
 <a href="/project/{project.id}" class="block group">
@@ -82,7 +75,7 @@
         
         <!-- Stats -->
         <div class="flex items-center text-gray-600 text-sm">
-          <button on:click={handleUpvote} class="flex items-center mr-2 hover:text-green-600">
+          <button aria-label="upvote" onclick={()=>upvoteProject(project.id)} class="flex items-center mr-2 hover:text-green-600" class:highlighted={userVote === 'up'}>
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
             </svg>
@@ -90,7 +83,11 @@
           
           <span class="mr-2">{project.score}</span>
           
-          <button on:click={handleDownvote} class="flex items-center mr-4 hover:text-red-600">
+          <button 
+            aria-label="downvote" 
+            onclick={()=>downvoteProject(project.id)} 
+            class="flex items-center mr-4 hover:text-red-600" 
+            class:highlighted={userVote === 'up'}>
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
@@ -112,8 +109,8 @@
       <!-- Action Buttons -->
       <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
         <div class="flex space-x-1">
-          <button 
-            on:click={editProject}
+          <button aria-label="edit" 
+            onclick={editProject}
             class="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
             title="Edit"
           >
@@ -121,8 +118,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
           </button>
-          <button 
-            on:click={duplicateProject}
+          <button
+            aria-label="duplicate project" 
+            onclick={duplicateProject}
             class="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded"
             title="Duplicate"
           >
@@ -131,7 +129,7 @@
             </svg>
           </button>
           <button 
-            on:click={deleteProject}
+            aria-label="delete project"
             class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
             title="Delete"
           >
@@ -161,13 +159,13 @@
       <!-- Stats -->
       <div class="flex items-center justify-between text-gray-500 text-sm">
         <div class="flex items-center space-x-3">
-          <button on:click={handleUpvote} class="flex items-center hover:text-green-600">
+          <button aria-label="upvote" onclick={()=>upvoteProject(project.id)} class="flex items-center hover:text-green-600" class:highlighted={userVote === 'up'}>
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
             </svg>
           <span>{project.score}</span>
           </button>
-          <button on:click={handleDownvote} class="flex items-center hover:text-red-600">
+          <button aria-label="downvote" onclick={()=>downvoteProject(project.id)} class="flex items-center hover:text-red-600" class:highlighted={userVote === 'down'}>
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
@@ -209,7 +207,8 @@
       
       <!-- Stats -->
       <div class="flex items-center text-gray-600 text-sm">
-        <button on:click={handleUpvote} class="flex items-center mr-2 hover:text-green-600">
+        <button onclick={()=>upvoteProject(project.id)} class="flex items-center mr-2 hover:text-green-600"
+          class:highlighted={userVote === 'up'}>
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
           </svg>
@@ -218,7 +217,8 @@
         
         <span class="mr-2">{project.score}</span>
         
-        <button on:click={handleDownvote} class="flex items-center mr-4 hover:text-red-600">
+        <button onclick={()=>downvoteProject(project.id)} class="flex items-center mr-4 hover:text-red-600"
+          class:highlighted={userVote === 'down'}>
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>

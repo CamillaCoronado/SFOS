@@ -23,18 +23,16 @@
     
     <!-- voting section -->
     <div class="flex items-center gap-4 mb-8 p-4 bg-gray-50 rounded-lg">
-      <button on:click={() => upvoteProject(project.id)} class="flex items-center gap-1 hover:text-green-600">
+      <button aria-label="upvote" onclick={() => upvoteProject(project.id)} class="flex items-center gap-1 hover:text-green-600">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
         </svg>
-        {project.upvotes}
+        <span>{project.score}</span>
       </button>
-      
-      <button on:click={() => downvoteProject(project.id)} class="flex items-center gap-1 hover:text-red-600">
+      <button aria-label="downvote" onclick={() => downvoteProject(project.id)} class="flex items-center gap-1 hover:text-red-600">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
         </svg>
-        {project.downvotes}
       </button>
     </div>
     

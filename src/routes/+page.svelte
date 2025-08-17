@@ -8,25 +8,6 @@
 
     let searchQuery = '';
 
-    function handleUpvote(projectId: string) {
-  if (!$currentUser) {
-    if (confirm('You need to log in to vote. Redirect to login?')) {
-      goto(`/auth?redirect=${encodeURIComponent($page.url.pathname)}`);
-    }
-    return;
-  }
-  upvoteProject(projectId);
-}
-
-function handleDownvote(projectId: string) {
-  if (!$currentUser) {
-    if (confirm('You need to log in to vote. Redirect to login?')) {
-      goto(`/auth?redirect=${encodeURIComponent($page.url.pathname)}`);
-    }
-    return;
-  }
-  downvoteProject(projectId);
-}
 </script>
 
 <div class="min-h-screen bg-gray-50">
