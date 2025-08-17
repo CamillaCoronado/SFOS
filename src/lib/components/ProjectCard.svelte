@@ -1,10 +1,9 @@
 <!-- src/lib/components/ProjectCard.svelte -->
 <script lang="ts">
-  import { upvoteProject, downvoteProject, getCurrentUserVote } from '$lib/stores/projects';
-  import { currentUser } from '$lib/stores/auth/auth';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import type { Project, VoteType} from '$lib/stores/projects';
+  import Voting from './Voting.svelte';
 
   
   let { 
@@ -16,16 +15,7 @@
     variant?: 'popular' | 'standard' | 'dashboard';
     backgroundColor?: string;
     } = $props();
-    let userVote: VoteType | null = $state(null);
-
   
-    $effect(() => {
-    if ($currentUser && project.id) {
-      getCurrentUserVote(project.id).then(vote => {
-        userVote = vote;
-      });
-    }
-    });
   function truncateTitle(title: string, maxLength: number) {
     return title.length > maxLength ? title.slice(0, maxLength) + '...' : title;
   }
@@ -75,24 +65,7 @@
         
         <!-- Stats -->
         <div class="flex items-center text-gray-600 text-sm">
-          <button aria-label="upvote" onclick={()=>upvoteProject(project.id)} class="flex items-center mr-2 hover:text-green-600" class:highlighted={userVote === 'up'}>
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-            </svg>
-          </button>
-          
-          <span class="mr-2">{project.score}</span>
-          
-          <button 
-            aria-label="downvote" 
-            onclick={()=>downvoteProject(project.id)} 
-            class="flex items-center mr-4 hover:text-red-600" 
-            class:highlighted={userVote === 'up'}>
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          
+          <Voting {project} />
           <div class="flex items-center">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -159,18 +132,7 @@
       <!-- Stats -->
       <div class="flex items-center justify-between text-gray-500 text-sm">
         <div class="flex items-center space-x-3">
-          <button aria-label="upvote" onclick={()=>upvoteProject(project.id)} class="flex items-center hover:text-green-600" class:highlighted={userVote === 'up'}>
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-            </svg>
-          <span>{project.score}</span>
-          </button>
-          <button aria-label="downvote" onclick={()=>downvoteProject(project.id)} class="flex items-center hover:text-red-600" class:highlighted={userVote === 'down'}>
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-            
-          </button>
+          <Voting {project} />
           <span class="flex items-center">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -207,24 +169,7 @@
       
       <!-- Stats -->
       <div class="flex items-center text-gray-600 text-sm">
-        <button onclick={()=>upvoteProject(project.id)} class="flex items-center mr-2 hover:text-green-600"
-          class:highlighted={userVote === 'up'}>
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-          </svg>
-          {project.upvotes}
-        </button>
-        
-        <span class="mr-2">{project.score}</span>
-        
-        <button onclick={()=>downvoteProject(project.id)} class="flex items-center mr-4 hover:text-red-600"
-          class:highlighted={userVote === 'down'}>
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-          {project.downvotes}
-        </button>
-        
+        <Voting {project} />
         <div class="flex items-center">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>

@@ -1,8 +1,9 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { projects, upvoteProject, downvoteProject } from '$lib/stores/projects';
-  
+  import { projects } from '$lib/stores/projects';
+  import Voting from '$lib/components/Voting.svelte';  
   $: project = $projects.find(p => p.id === $page.params.id);
+
 </script>
 
 <div class="max-w-4xl mx-auto px-4 py-8">
@@ -23,17 +24,7 @@
     
     <!-- voting section -->
     <div class="flex items-center gap-4 mb-8 p-4 bg-gray-50 rounded-lg">
-      <button aria-label="upvote" onclick={() => upvoteProject(project.id)} class="flex items-center gap-1 hover:text-green-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-        </svg>
-        <span>{project.score}</span>
-      </button>
-      <button aria-label="downvote" onclick={() => downvoteProject(project.id)} class="flex items-center gap-1 hover:text-red-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </button>
+      <Voting {project} />
     </div>
     
     <!-- project details grid -->
