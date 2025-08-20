@@ -7,7 +7,7 @@
   let isLogin = true;
   let email = '';
   let password = '';
-  let username = '';
+  // username no longer required for signup
   let loading = false;
   let error = '';
   let userType= '';
@@ -29,12 +29,7 @@
       if (isLogin) {
         result = await login(email, password);
       } else {
-        if (!username.trim()) {
-          error = 'Username is required';
-          loading = false;
-          return;
-        }
-        result = await register(username, email, password);
+        result = await register(email, password);
       }
 
       
