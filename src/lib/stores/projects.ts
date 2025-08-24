@@ -1,7 +1,8 @@
 // src/lib/stores/firebase-projects.ts
 import { writable } from 'svelte/store';
 import { db } from '$lib/firebase';
-import { currentUser } from '$lib/stores/auth/auth';
+import { setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { currentUser } from './auth/auth';
 import { get } from 'svelte/store';
 import { 
   collection, 
@@ -44,6 +45,7 @@ export interface Project {
 }
 
 export const projects = writable<Project[]>([]);
+export type VoteType = 'up' | 'down' | null;
 
 // load projects from firestore
 export async function loadProjects() {
@@ -106,34 +108,56 @@ export async function upvoteProject(projectId: string) {
   try {
     const user = get(currentUser);
     if (!user) {
-      console.error('User not authenticated');
+      console.error('user not authenticated');
       return;
     }
 
-    // update in firestore
-    const projectRef = doc(db, 'projects', projectId);
-    
-    // get current project data to calculate new score
     const currentProjects = get(projects);
     const project = currentProjects.find(p => p.id === projectId);
     if (!project) return;
 
-    await updateDoc(projectRef, {
-      upvotes: project.upvotes + 1,
-      score: project.score + 1,
-      updatedAt: Timestamp.now()
-    });
+    const existingVote = await getUserVote(user.id, projectId);
+    const projectRef = doc(db, 'projects', projectId);
 
-    // update local store immediately for better UX
-    projects.update(current => 
-      current.map(p => 
-        p.id === projectId 
-          ? { ...p, upvotes: p.upvotes + 1, score: p.score + 1 }
-          : p
-      )
-    );
+    if (existingVote === 'up') {
+      // already upvoted, do nothing
+      return;
+    } else if (existingVote === 'down') {
+      // switch from down to up
+      await updateDoc(projectRef, {
+        upvotes: project.upvotes + 1,
+        downvotes: project.downvotes - 1,
+        score: project.score + 2, // +1 for removing down, +1 for adding up
+        updatedAt: Timestamp.now()
+      });
+      await setUserVote(user.id, projectId, 'up');
+      
+      projects.update(current => 
+        current.map(p => 
+          p.id === projectId 
+            ? { ...p, upvotes: p.upvotes + 1, downvotes: p.downvotes - 1, score: p.score + 2 }
+            : p
+        )
+      );
+    } else {
+      // add new upvote
+      await updateDoc(projectRef, {
+        upvotes: project.upvotes + 1,
+        score: project.score + 1,
+        updatedAt: Timestamp.now()
+      });
+      await setUserVote(user.id, projectId, 'up');
+      
+      projects.update(current => 
+        current.map(p => 
+          p.id === projectId 
+            ? { ...p, upvotes: p.upvotes + 1, score: p.score + 1 }
+            : p
+        )
+      );
+    }
   } catch (error) {
-    console.error('Error upvoting project:', error);
+    console.error('error upvoting project:', error);
   }
 }
 
@@ -141,33 +165,84 @@ export async function downvoteProject(projectId: string) {
   try {
     const user = get(currentUser);
     if (!user) {
-      console.error('User not authenticated');
+      console.error('user not authenticated');
       return;
     }
 
-    // update in firestore
-    const projectRef = doc(db, 'projects', projectId);
-    
-    // get current project data to calculate new score
     const currentProjects = get(projects);
     const project = currentProjects.find(p => p.id === projectId);
     if (!project) return;
 
-    await updateDoc(projectRef, {
-      downvotes: project.downvotes + 1,
-      score: project.score - 1,
-      updatedAt: Timestamp.now()
-    });
+    const existingVote = await getUserVote(user.id, projectId);
+    const projectRef = doc(db, 'projects', projectId);
 
-    // update local store immediately for better UX
-    projects.update(current => 
-      current.map(p => 
-        p.id === projectId 
-          ? { ...p, downvotes: p.downvotes + 1, score: p.score - 1 }
-          : p
-      )
-    );
+    if (existingVote === 'down') {
+      // already downvoted, do nothing
+      return;
+    } else if (existingVote === 'up') {
+      // switch from up to down
+      await updateDoc(projectRef, {
+        upvotes: project.upvotes - 1,
+        downvotes: project.downvotes + 1,
+        score: project.score - 2, // -1 for removing up, -1 for adding down
+        updatedAt: Timestamp.now()
+      });
+      await setUserVote(user.id, projectId, 'down');
+      
+      projects.update(current => 
+        current.map(p => 
+          p.id === projectId 
+            ? { ...p, upvotes: p.upvotes - 1, downvotes: p.downvotes + 1, score: p.score - 2 }
+            : p
+        )
+      );
+    } else {
+      // add new downvote
+      await updateDoc(projectRef, {
+        downvotes: project.downvotes + 1,
+        score: project.score - 1,
+        updatedAt: Timestamp.now()
+      });
+      await setUserVote(user.id, projectId, 'down');
+      
+      projects.update(current => 
+        current.map(p => 
+          p.id === projectId 
+            ? { ...p, downvotes: p.downvotes + 1, score: p.score - 1 }
+            : p
+        )
+      );
+    }
   } catch (error) {
-    console.error('Error downvoting project:', error);
+    console.error('error downvoting project:', error);
   }
+}
+
+async function getUserVote(userId: string, projectId: string): Promise<VoteType | null> {
+  const voteRef = doc(db, 'userVotes', `${userId}_${projectId}`);
+  const voteSnap = await getDoc(voteRef);
+  return voteSnap.exists() ? voteSnap.data().voteType : null;
+}
+
+// update or create user vote record
+async function setUserVote(userId: string, projectId: string, voteType: VoteType) {
+  const voteRef = doc(db, 'userVotes', `${userId}_${projectId}`);
+  await setDoc(voteRef, {
+    userId,
+    projectId,
+    voteType,
+    timestamp: Timestamp.now()
+  });
+}
+
+// remove user vote record
+async function removeUserVote(userId: string, projectId: string) {
+  const voteRef = doc(db, 'userVotes', `${userId}_${projectId}`);
+  await deleteDoc(voteRef);
+}
+
+export async function getCurrentUserVote(projectId: string): Promise<VoteType | null> {
+  const user = get(currentUser);
+  if (!user) return null;
+  return getUserVote(user.id, projectId);
 }

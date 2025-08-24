@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { downvoteProject, projects, upvoteProject } from '$lib/stores/projects';
-    import { currentUser } from '$lib/stores/auth/auth';
+    import { projects } from '$lib/stores/projects';
+ 
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import ProjectCard from '$lib/components/ProjectCard.svelte';
@@ -8,25 +8,6 @@
 
     let searchQuery = '';
 
-    function handleUpvote(projectId: string) {
-  if (!$currentUser) {
-    if (confirm('You need to log in to vote. Redirect to login?')) {
-      goto(`/auth?redirect=${encodeURIComponent($page.url.pathname)}`);
-    }
-    return;
-  }
-  upvoteProject(projectId);
-}
-
-function handleDownvote(projectId: string) {
-  if (!$currentUser) {
-    if (confirm('You need to log in to vote. Redirect to login?')) {
-      goto(`/auth?redirect=${encodeURIComponent($page.url.pathname)}`);
-    }
-    return;
-  }
-  downvoteProject(projectId);
-}
 </script>
 
 <div class="min-h-screen bg-gray-50">
@@ -60,7 +41,7 @@ function handleDownvote(projectId: string) {
         placeholder="Search projects"
         class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none"
       />
-      <button class="bg-blue-500 text-white px-6 py-3 rounded-r-lg hover:bg-blue-600 cursor-pointer">
+      <button aria-label="search" class="bg-blue-500 text-white px-6 py-3 rounded-r-lg hover:bg-blue-600 cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
@@ -148,20 +129,20 @@ function handleDownvote(projectId: string) {
   </section>
 
   <!-- Popular Projects -->
-  <section class="sm:px-6 lg:px-8 mt-8 mb-4">
-  <h2 class="text-3xl font-bold text-gray-900 mb-8 pl-4">Popular Projects</h2>
-  
- <div class="grid md:grid-cols-2 gap-6">
- {#each $projects.slice(0, 3) as project, index}
-   <ProjectCard 
-     {project} 
-     variant="popular"
-   />
-{:else}
-   <div class="col-span-2 text-center py-12">
-     <p class="text-gray-500 text-lg">No projects yet. <a href="/create" class="text-blue-600 hover:underline">Create the first one!</a></p>
-   </div>
- {/each}
-</div>
+<section class="mb-12 mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Popular Projects</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {#each $projects.slice(0, 3) as project, index}
+            <ProjectCard 
+                {project} 
+                variant="popular" 
+        />
+        {:else}
+            <div class="text-center py-12">
+                <p class="text-gray-500">No projects found.</p>
+            </div>
+        {/each}
+      </div>
 </section>
 </div>

@@ -1,1 +1,6 @@
 @import 'tailwindcss';
+
+.highlighted {
+    background-color: #007acc;
+    color: white;
+}
