@@ -52,10 +52,9 @@ export async function login(email: string, password: string): Promise<{ success:
   }
 }
 
-export async function register(username: string, email: string, password: string): Promise<{ success: boolean; error?: string }> {
+export async function register(email: string, password: string): Promise<{ success: boolean; error?: string }> {
   try {
     await createUserWithEmailAndPassword(auth, email, password);
-     // TODO: later save username to firestore user profile
     return { success: true };
   } catch (error: any) {
     console.log('Firebase error details:');
