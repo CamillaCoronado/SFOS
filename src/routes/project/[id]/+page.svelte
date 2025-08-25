@@ -1,7 +1,8 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { projects } from '$lib/stores/projects';
-  import Voting from '$lib/components/Voting.svelte';  
+  import Voting from '$lib/components/Voting.svelte';
+  import CommentThread from '$lib/CommentThread.svelte';
   $: project = $projects.find(p => p.id === $page.params.id);
 
 </script>
@@ -62,6 +63,11 @@
           <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">{tag}</span>
         {/each}
       </div>
+    </div>
+
+    <div class="mt-10 border-t pt-8">
+      <h3 class="font-semibold text-gray-900 mb-3">Comments</h3>
+      <CommentThread projectId={project.id} />
     </div>
     
     <!-- back button -->
