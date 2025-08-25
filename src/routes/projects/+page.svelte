@@ -5,7 +5,7 @@
   import ProjectCard from '$lib/components/ProjectCard.svelte';
   import { currentUser } from '$lib/stores/auth/auth';
   import { logout } from '$lib/stores/auth/auth'; 
-  
+  import { goto } from '$app/navigation';
   
   let searchQuery = '';
   let selectedTags: string[] = [];
@@ -78,7 +78,6 @@
     return matchesSearch && matchesTags;
   });
 
-  
   const backgroundColors = [
     'bg-orange-100',
     'bg-blue-100', 
@@ -93,10 +92,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
-        <a href="/" class="flex items-center">
-          <img alt= "logo" src="/logo.png" class="w-8 h-8 object-cover">
+        <button onclick={() => goto('/')} class="flex items-center">
+          <img alt="logo" src="/logo.png" class="w-8 h-8 object-cover">
           <span class="ml-2 text-orange-500 text-xl font-semibold">SFOS</span>
-        </a>
+        </button>
         
         <!-- Navigation -->
         <div class="flex items-center space-x-6">
@@ -182,10 +181,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
-        <div class="flex items-center">
-         <img alt= "logo" src="/logo.png" class="w-8 h-8 object-cover">
+        <button onclick={() => goto('/')} class="flex items-center">
+          <img alt="logo" src="/logo.png" class="w-8 h-8 object-cover">
           <span class="ml-2 text-orange-500 text-xl font-semibold">SFOS</span>
-        </div>
+        </button>
         
         <!-- Nav -->
         <div class="flex items-center space-x-4">
@@ -198,24 +197,25 @@
     </div>
   </header>
 {/if}
+
   <!-- Search and Filters -->
   <div class="max-w-7xl mx-auto px-4 py-6">
     <div class="flex gap-4 mb-8 items-end">
       <div class="flex-1 relative">
         <div class="w-full mx-auto mt-[72px] inline-block">
-            <div class="flex w-full">
+          <div class="flex w-full">
             <input
-                type="text"
-                bind:value={searchQuery}
-                placeholder="Search projects"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none"
+              type="text"
+              bind:value={searchQuery}
+              placeholder="Search projects"
+              class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none"
             />
-            <button class="bg-blue-500 text-white px-6 py-3 rounded-r-lg hover:bg-blue-600 cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button aria-label="search" class="bg-blue-500 text-white px-6 py-3 rounded-r-lg hover:bg-blue-600 cursor-pointer">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+              </svg>
             </button>
-            </div>
+          </div>
         </div>
         <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -224,15 +224,15 @@
       
       <div class="relative">
         <svg class="relative top-7 left-2" width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <line x1="5.12085" y1="1.84065" x2="19.4615" y2="1.84065" stroke="#878686"/>
-            <line x1="5.12085" y1="8.21428" x2="19.4615" y2="8.21428" stroke="#878686"/>
-            <line x1="5.12085" y1="14.5879" x2="19.4615" y2="14.5879" stroke="#878686"/>
-            <circle cx="1.93398" cy="13.4945" r="1.59341" fill="#878686"/>
-            <circle cx="1.93398" cy="7.91758" r="1.59341" fill="#878686"/>
-            <circle cx="1.93398" cy="2.34066" r="1.59341" fill="#878686"/>
+          <line x1="5.12085" y1="1.84065" x2="19.4615" y2="1.84065" stroke="#878686"/>
+          <line x1="5.12085" y1="8.21428" x2="19.4615" y2="8.21428" stroke="#878686"/>
+          <line x1="5.12085" y1="14.5879" x2="19.4615" y2="14.5879" stroke="#878686"/>
+          <circle cx="1.93398" cy="13.4945" r="1.59341" fill="#878686"/>
+          <circle cx="1.93398" cy="7.91758" r="1.59341" fill="#878686"/>
+          <circle cx="1.93398" cy="2.34066" r="1.59341" fill="#878686"/>
         </svg>
         <select class="appearance-none text-center bg-white border border-gray-300 rounded-lg pl-8 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>Tags</option>
+          <option>Tags</option>
           {#each allTags as tag}
             <option value={tag}>{tag}</option>
           {/each}
@@ -249,14 +249,14 @@
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {#each $projects.slice(0, 4) as project, index}
-            <ProjectCard 
-                {project} 
-                variant="popular" 
-        />
+          <ProjectCard 
+            {project} 
+            variant="popular" 
+          />
         {:else}
-            <div class="text-center py-12">
-                <p class="text-gray-500">No projects found.</p>
-            </div>
+          <div class="text-center py-12">
+            <p class="text-gray-500">No projects found.</p>
+          </div>
         {/each}
       </div>
     </section>
@@ -266,14 +266,13 @@
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {#each $projects as project}
-            <ProjectCard {project} variant="standard" />
+          <ProjectCard {project} variant="standard" />
         {:else}
-            <div class="text-center py-12">
-                <p class="text-gray-500">No projects found.</p>
-            </div>
+          <div class="text-center py-12">
+            <p class="text-gray-500">No projects found.</p>
+          </div>
         {/each}
       </div>
     </section>
-  
   </div>
 </div>

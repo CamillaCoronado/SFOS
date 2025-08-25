@@ -12,7 +12,10 @@ import {
   orderBy, 
   updateDoc, 
   doc,
-  Timestamp
+  Timestamp,
+  serverTimestamp,
+  where,
+  onSnapshot
 } from 'firebase/firestore';
 
 type ProjectCategory = 'idea' | 'fleshed-out' | 'policy-proposal';
@@ -245,4 +248,86 @@ export async function getCurrentUserVote(projectId: string): Promise<VoteType | 
   const user = get(currentUser);
   if (!user) return null;
   return getUserVote(user.id, projectId);
+}
+
+export type Comment = {
+  id?: string;
+  text: string;
+  authorId: string;
+  authorName?: string | null;
+  createdAt?: any;     // Firestore timestamp
+  editedAt?: any | null;
+  replyTo?: string | null;   // parent commentId for threads
+  pinned?: boolean;
+  status?: "open" | "resolved";
+};
+
+export const commentsCollection = (projectId: string) =>
+  collection(db, "projects", projectId, "comments");
+
+// Create
+export async function addComment(
+  projectId: string,
+  data: Omit<Comment, "id" | "createdAt" | "editedAt" | "pinned" | "status">
+) {
+  const payload: Comment = {
+    text: data.text.trim(),
+    authorId: data.authorId,
+    authorName: data.authorName ?? null,
+    replyTo: data.replyTo ?? null,
+    pinned: false,
+    status: "open",
+    createdAt: serverTimestamp(),
+    editedAt: null
+  };
+  if (!payload.text) return;
+  await addDoc(commentsCollection(projectId), payload as any);
+}
+
+// Update (edit text)
+export async function editComment(projectId: string, commentId: string, newText: string) {
+  const ref = doc(db, "projects", projectId, "comments", commentId);
+  await updateDoc(ref, { text: newText.trim(), editedAt: serverTimestamp() });
+}
+
+// Delete
+export async function deleteComment(projectId: string, commentId: string) {
+  const ref = doc(db, "projects", projectId, "comments", commentId);
+  await deleteDoc(ref);
+}
+
+// Pin / Unpin
+export async function setPinned(projectId: string, commentId: string, pinned: boolean) {
+  const ref = doc(db, "projects", projectId, "comments", commentId);
+  await updateDoc(ref, { pinned });
+}
+
+// Set status ("open" | "resolved")
+export async function setStatus(projectId: string, commentId: string, status: "open" | "resolved") {
+  const ref = doc(db, "projects", projectId, "comments", commentId);
+  await updateDoc(ref, { status });
+}
+
+// Listen: top-level comments (no replyTo)
+export function listenToComments(projectId: string, cb: (rows: Comment[]) => void) {
+  const q = query(
+    commentsCollection(projectId),
+    where("replyTo", "==", null),
+    orderBy("createdAt", "desc")
+  );
+  return onSnapshot(q, (snap) =>
+    cb(snap.docs.map(d => ({ id: d.id, ...d.data() } as Comment)))
+  );
+}
+
+// Listen: replies for a given parent comment
+export function listenToReplies(projectId: string, parentId: string, cb: (rows: Comment[]) => void) {
+  const q = query(
+    commentsCollection(projectId),
+    where("replyTo", "==", parentId),
+    orderBy("createdAt", "asc")
+  );
+  return onSnapshot(q, (snap) =>
+    cb(snap.docs.map(d => ({ id: d.id, ...d.data() } as Comment)))
+  );
 }

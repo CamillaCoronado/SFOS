@@ -90,10 +90,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
-        <a href="/" class="flex items-center">
+        <button onclick={() => goto('/')} class="flex items-center">
           <img alt= "logo" src="/logo.png" class="w-8 h-8 object-cover">
           <span class="ml-2 text-orange-500 text-xl font-semibold">SFOS</span>
-        </a>
+        </button>
         
         <!-- Navigation -->
         <div class="flex items-center space-x-6">
