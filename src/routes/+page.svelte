@@ -1,13 +1,11 @@
 <script lang="ts">
     import { projects } from '$lib/stores/projects';
- 
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import ProjectCard from '$lib/components/ProjectCard.svelte';
-
+	  import ProjectsSearchForm from '$lib/components/ProjectsSearchForm.svelte';
 
     let searchQuery = '';
-
 </script>
 
 <div class="min-h-screen bg-gray-50">
@@ -35,17 +33,10 @@
   <!-- Search Bar -->
   <div class="w-full mx-auto px-4 mt-[72px] inline-block">
     <div class="flex w-full md:max-w-md">
-      <input
-        type="text"
-        bind:value={searchQuery}
-        placeholder="Search projects"
-        class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none"
-      />
-      <button aria-label="search" class="bg-blue-500 text-white px-6 py-3 rounded-r-lg hover:bg-blue-600 cursor-pointer">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-      </button>
+      <ProjectsSearchForm
+      initial={searchQuery}
+      on:search={(e) => (searchQuery = e.detail)}
+    />
     </div>
   </div>
 
