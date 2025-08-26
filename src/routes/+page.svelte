@@ -4,31 +4,14 @@
     import { goto } from '$app/navigation';
     import ProjectCard from '$lib/components/ProjectCard.svelte';
 	  import ProjectsSearchForm from '$lib/components/ProjectsSearchForm.svelte';
+    import Header  from '$lib/components/Header.svelte';
 
     let searchQuery = '';
 </script>
 
 <div class="min-h-screen bg-gray-50">
   <!-- Header -->
-  <header class="bg-white shadow-sm fixed w-full top-0">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <!-- Logo -->
-        <button onclick={() => goto('/')} class="flex items-center">
-          <img alt= "logo" src="/logo.png" class="w-8 h-8 object-cover">
-          <span class="ml-2 text-orange-500 text-xl font-semibold">SFOS</span>
-        </button>
-        
-        <!-- Nav -->
-        <div class="flex items-center space-x-4">
-          <button onclick={() => goto('/auth?mode=login')} class="text-gray-700 hover:text-gray-900 cursor-pointer text-sm">Log in</button>
-          <button onclick={() => goto('/auth?mode=register')} class="bg-orange-500 text-sm text-white px-4 py-2 rounded-full hover:bg-orange-600 cursor-pointer">
-            Sign up
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
+  <Header />
 
   <!-- Search Bar -->
   <div class="w-full mx-auto px-4 mt-[72px] inline-block">
