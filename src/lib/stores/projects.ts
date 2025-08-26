@@ -15,7 +15,8 @@ import {
   Timestamp,
   serverTimestamp,
   where,
-  onSnapshot
+  onSnapshot,
+  increment
 } from 'firebase/firestore';
 
 type ProjectCategory = 'idea' | 'fleshed-out' | 'policy-proposal';
@@ -282,6 +283,21 @@ export async function addComment(
   };
   if (!payload.text) return;
   await addDoc(commentsCollection(projectId), payload as any);
+  // increment project comment count only for top-level comments
+  if (!payload.replyTo) {
+    try {
+      const projectRef = doc(db, 'projects', projectId);
+      await updateDoc(projectRef, {
+        comments: increment(1),
+        updatedAt: serverTimestamp()
+      });
+      projects.update(current =>
+        current.map(p =>
+          p.id === projectId ? { ...p, comments: (p.comments ?? 0) + 1 } : p
+        )
+      );
+    } catch {}
+  }
 }
 
 // Update (edit text)
@@ -293,7 +309,24 @@ export async function editComment(projectId: string, commentId: string, newText:
 // Delete
 export async function deleteComment(projectId: string, commentId: string) {
   const ref = doc(db, "projects", projectId, "comments", commentId);
+  // check if the comment is top-level before deleting
+  const snap = await getDoc(ref);
+  const isTopLevel = snap.exists() ? (snap.data()?.replyTo ?? null) === null : false;
   await deleteDoc(ref);
+  if (isTopLevel) {
+    try {
+      const projectRef = doc(db, 'projects', projectId);
+      await updateDoc(projectRef, {
+        comments: increment(-1),
+        updatedAt: serverTimestamp()
+      });
+      projects.update(current =>
+        current.map(p =>
+          p.id === projectId ? { ...p, comments: Math.max(0, (p.comments ?? 0) - 1) } : p
+        )
+      );
+    } catch {}
+  }
 }
 
 // Pin / Unpin
