@@ -2,6 +2,9 @@
   import { projects } from '$lib/stores/projects';
   import { goto } from '$app/navigation';
   import { currentUser, logout } from '$lib/stores/auth/auth';
+  import ProjectsSearchForm from '$lib/components/ProjectsSearchForm.svelte';
+
+  let searchQuery = '';
   
   // mock notifications
   export const notifications = [
@@ -31,7 +34,6 @@
     }
   ];
   
-  let searchQuery = '';
   let showProfileMenu = false;
   let showNotifications = false;
   
@@ -45,14 +47,6 @@
   
   // unread notifications count
   $: unreadCount = notifications.filter(n => !n.read).length;
-  
-  function handleSearch() {
-    if (searchQuery.trim()) {
-      goto(`/projects?search=${encodeURIComponent(searchQuery)}`);
-    } else {
-      goto('/projects');
-    }
-  }
   
   function editProject(projectId: string) {
     console.log('Edit project:', projectId);//mocks
@@ -184,25 +178,10 @@
         <p class="text-gray-600 mb-6">Manage your projects and track your impact.</p>
         
         <!-- Search Bar -->
-         <div class="w-full mx-auto mb-8 inline-block">
-            <div class="flex max-w-md">
-            <input
-                type="text"
-                bind:value={searchQuery}
-                placeholder="Search projects"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none"
-            />
-            <button aria-label="projects" class="bg-blue-500 text-white px-6 py-3 rounded-r-lg hover:bg-blue-600 cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </button>
-            <button onclick={() => goto('/projects')} class= "mx-4 text-blue-600 cursor-pointer">See all projects</button>
-            </div>
-            
-        </div>
-        
-
+        <ProjectsSearchForm
+      initial={searchQuery}
+      on:search={(e) => (searchQuery = e.detail)}
+    />
         
         <!-- Most Popular Project -->
         {#if mostPopularProject}

@@ -1,11 +1,12 @@
 <!-- src/routes/projects/+page.svelte -->
 <script lang="ts">
   import { projects } from '$lib/stores/projects';
-  import type { Project } from '$lib/stores/projects';
   import ProjectCard from '$lib/components/ProjectCard.svelte';
   import { currentUser } from '$lib/stores/auth/auth';
   import { logout } from '$lib/stores/auth/auth'; 
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
+  import ProjectsSearchForm from '$lib/components/ProjectsSearchForm.svelte'; 
   
   let searchQuery = '';
   let selectedTags: string[] = [];
@@ -13,14 +14,35 @@
   let showProfileMenu = false;
   $: unreadCount = notifications.filter(n => !n.read).length;
 
+   $: {
+    const q = $page.url.searchParams.get('q') ?? '';
+    if (q !== searchQuery) searchQuery = q;
+  }
+
   // debounce
   let searchDebounced = '';
   let _searchT: ReturnType<typeof setTimeout> | null = null;
 
+  // minimal debounce to drive filtering from searchQuery
   $: {
     if (_searchT) clearTimeout(_searchT);
-    _searchT = setTimeout(() => (searchDebounced = searchQuery.trim()), 150);
+    _searchT = setTimeout(() => {
+      searchDebounced = searchQuery.trim();
+    }, 200);
   }
+
+  const num = (v: unknown) => Number.isFinite(+(<any>v)) ? +(<any>v) : 0;
+
+  $: popularProjects = [...$projects]
+    .map(p => ({
+      ...p,
+      rank: num(p.score) + 0.2 * num(p.comments)  // adjust weight (0.2) as you like
+    }))
+    .sort((a, b) => {
+      if (b.rank !== a.rank) return b.rank - a.rank;
+      return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
+    })
+    .slice(0, 4);
 
   export const notifications = [
     {
@@ -180,28 +202,25 @@
   <!-- Search -->
   <div class="max-w-7xl mx-auto px-4 py-6">
     <div class="w-full mx-auto mt-[72px]">
-      <form
-        class="flex w-full"
-        onsubmit={(e) => { e.preventDefault(); }}
-      >
-        <input
-          type="text"
-          bind:value={searchQuery}
-          placeholder="Search projects"
-          class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none"
-        />
-        <button
-          type="submit"
-          aria-label="search"
-          class="bg-blue-500 text-white px-6 py-3 rounded-r-lg hover:bg-blue-600 cursor-pointer"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </button>
-      </form>
+     <!-- Bind value so typing updates searchQuery; component internals unchanged -->
+     <ProjectsSearchForm
+      initial={searchQuery}
+      on:search={(e) => (searchQuery = e.detail)}
+    />
     </div>
   </div>
+
+  <!-- Popular projects -->
+  {#if !searchDebounced && popularProjects.length > 0}
+    <div class="max-w-7xl mx-auto px-4 pb-12">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Popular Projects</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {#each popularProjects as project}
+          <ProjectCard {project} variant="standard" />
+        {/each}
+      </div>
+    </div>
+  {/if}
 
   <!-- Projects list -->
   <div class="max-w-7xl mx-auto px-4 pb-12">
