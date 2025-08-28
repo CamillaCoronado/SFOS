@@ -1,5 +1,8 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import NotificationsBell from '$lib/components/NotificationsBell.svelte';
+  import { currentUser } from '$lib/stores/auth/auth';
+  import { logout } from '$lib/stores/auth/auth';
 
   export let logoSrc: string = '/logo.png';
   export let brand: string = 'SFOS';
@@ -8,6 +11,11 @@
   export let sticky: boolean = true;
   export let transparent: boolean = false;
   export let className: string = '';
+
+  let showProfileMenu = false;
+
+  function editProfile() { goto('/profile'); }
+  function openSettings() { goto('/settings'); }
 
   const headerBase =
     'w-full top-0 z-50 ' +
@@ -24,24 +32,61 @@
         <span class="ml-2 text-xl font-semibold text-orange-500">{brand}</span>
       </button>
 
-      <!-- Right actions (default auth; can be overridden via slot) -->
-      <div class="flex items-center space-x-4">
-        <slot name="right">
-          {#if showAuth}
+      <!-- Navigation -->
+      <div class="flex items-center space-x-6">
+        {#if $currentUser}
+          <!-- Notifications -->
+          <div class="relative">
+            <NotificationsBell uid={$currentUser.id} />
+          </div>
+
+          <!-- User Menu -->
+          <div class="relative">
             <button
-              onclick={() => goto('/auth?mode=login')}
-              class="cursor-pointer text-sm text-gray-700 hover:text-gray-900"
+              onclick={() => (showProfileMenu = !showProfileMenu)}
+              class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 text-sm"
             >
-              Log in
+              <img
+                src={$currentUser?.avatar || '/avatar.png'}
+                alt="profile"
+                class="w-6 h-6 rounded-full bg-gray-300 object-cover"
+              />
+              <span>{$currentUser?.username || 'Profile'}</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
             </button>
-            <button
-              onclick={() => goto('/auth?mode=register')}
-              class="cursor-pointer rounded-full bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
-            >
-              Sign up
-            </button>
-          {/if}
-        </slot>
+
+            {#if showProfileMenu}
+              <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
+                <button onclick={editProfile} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm">
+                  Edit Profile
+                </button>
+                <button onclick={openSettings} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm">
+                  Settings
+                </button>
+                <hr class="my-1 border-gray-200" />
+                <button onclick={logout} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm">
+                  Logout
+                </button>
+              </div>
+            {/if}
+          </div>
+        {:else if showAuth}
+          <!-- Auth actions -->
+          <button
+            onclick={() => goto('/auth?mode=login')}
+            class="cursor-pointer text-sm text-gray-700 hover:text-gray-900"
+          >
+            Log in
+          </button>
+          <button
+            onclick={() => goto('/auth?mode=register')}
+            class="cursor-pointer rounded-full bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+          >
+            Sign up
+          </button>
+        {/if}
       </div>
     </div>
   </div>

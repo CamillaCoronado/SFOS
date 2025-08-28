@@ -6,37 +6,84 @@
   import { auth } from "$lib/firebase";
   import { onAuthStateChanged } from "firebase/auth";
   import { goto } from "$app/navigation";
+  import { pushNotification } from '$lib/stores/notifications';
 
   const dispatch = createEventDispatcher();
 
-  export let projectId: string;
-  export let replyTo: string | null = null;
+  let {
+    projectId,
+    replyTo = null,
+    projectOwnerUid,
+    projectTitle,
+    replyTargetUid,
+    replyTargetName,
+    oncancel
+  }: {
+    projectId: string;
+    replyTo?: string | null;
+    projectOwnerUid?: string;
+    projectTitle?: string;
+    replyTargetUid?: string;
+    replyTargetName?: string
+    oncancel?: () => void;
+  } = $props();
+ 
 
-  let user: User | null = null;
-  let text = "";
-  let posting = false;
+let user = $state<User | null>(null);
+let text = $state(''); 
+let posting = $state(false);
+
 
   onMount(() => {
     onAuthStateChanged(auth, (u) => (user = u));
   });
 
   async function submit() {
-    const body = text.trim();
-    if (!user || !body) return;
-    posting = true;
-    try {
-      await addComment(projectId, {
-        text: body,
-        authorId: user.uid,
-        authorName: user.displayName ?? user.email ?? "Anonymous",
-        replyTo
+  const body = text.trim();
+  if (!user || !body) return;
+  posting = true;
+  try {
+    await addComment(projectId, {
+      text: body,
+      authorId: user.uid,
+      authorName: user.displayName ?? user.email ?? "Anonymous",
+      replyTo
+    });
+
+    if (replyTo && replyTargetUid && user.uid !== replyTargetUid) {
+      const title = projectTitle ?? 'this project';
+      await pushNotification(replyTargetUid, {
+        type: 'reply',
+        message: `${user.displayName ?? user.email ?? 'Someone'} replied to your comment in “${title}”`,
+        projectId,
+        actor: {
+          uid: user.uid,
+          name: user.displayName ?? user.email ?? 'Anonymous',
+          avatarUrl: user.photoURL ?? ''
+        }
       });
-      text = "";
-      if (replyTo) dispatch("cancel");
-    } finally {
-      posting = false;
     }
+
+    // NEW: notify project owner on top-level comment
+    if (!replyTo && user.uid !== projectOwnerUid) {
+      await pushNotification(projectOwnerUid!, {
+        type: 'comment',
+        message: `${user.displayName ?? user.email ?? 'Someone'} commented on “${projectTitle}”`,
+        projectId,
+        actor: {
+          uid: user.uid,
+          name: user.displayName ?? user.email ?? 'Anonymous',
+          avatarUrl: user.photoURL ?? ''
+        }
+      });
+    }
+
+    text = "";
+    if (replyTo) dispatch("cancel");
+  } finally {
+    posting = false;
   }
+}
 </script>
 
 {#if !user}
@@ -64,7 +111,7 @@
       <div class="flex items-center justify-end gap-3 px-3 py-2 border-t border-gray-200">
         <button
           type="button"
-          onclick={() => (text = "", replyTo && dispatch('cancel'))}
+          onclick={() => oncancel?.()}
           class="px-4 py-1.5 rounded-full text-sm font-medium bg-gray-100 hover:bg-gray-200"
         >
           Cancel
