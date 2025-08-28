@@ -4,3 +4,7 @@
     background-color: #007acc;
     color: white;
 }
+
+button, a {
+    cursor: pointer;
+}

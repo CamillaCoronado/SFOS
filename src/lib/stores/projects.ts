@@ -18,6 +18,7 @@ import {
   onSnapshot,
   increment
 } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 type ProjectCategory = 'idea' | 'fleshed-out' | 'policy-proposal';
 
@@ -50,6 +51,8 @@ export interface Project {
 
 export const projects = writable<Project[]>([]);
 export type VoteType = 'up' | 'down' | null;
+const toNum = (v: VoteType) => v === 'up' ? 1 : v === 'down' ? -1 : 0;
+
 
 // load projects from firestore
 export async function loadProjects() {
@@ -110,145 +113,125 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
 
 export async function upvoteProject(projectId: string) {
   try {
-    const user = get(currentUser);
-    if (!user) {
-      console.error('user not authenticated');
-      return;
-    }
+    const uid = getAuth().currentUser?.uid;
+    if (!uid) { console.error('user not authenticated'); return; }
 
-    const currentProjects = get(projects);
-    const project = currentProjects.find(p => p.id === projectId);
+    const list = get(projects);
+    const project = list.find(p => p.id === projectId);
     if (!project) return;
 
-    const existingVote = await getUserVote(user.id, projectId);
     const projectRef = doc(db, 'projects', projectId);
+    const existing = await getUserVote(uid, projectId);
 
-    if (existingVote === 'up') {
-      // already upvoted, do nothing
-      return;
-    } else if (existingVote === 'down') {
-      // switch from down to up
+    console.log('auth uid:', getAuth().currentUser?.uid);
+    console.log('project id:', projectId);
+
+    if (existing === 'up') return;
+
+    if (existing === 'down') {
       await updateDoc(projectRef, {
         upvotes: project.upvotes + 1,
         downvotes: project.downvotes - 1,
-        score: project.score + 2, // +1 for removing down, +1 for adding up
-        updatedAt: Timestamp.now()
+        score: project.score + 2,
+        updatedAt: serverTimestamp()
       });
-      await setUserVote(user.id, projectId, 'up');
-      
-      projects.update(current => 
-        current.map(p => 
-          p.id === projectId 
-            ? { ...p, upvotes: p.upvotes + 1, downvotes: p.downvotes - 1, score: p.score + 2 }
-            : p
-        )
-      );
+      await setUserVote(uid, projectId, 'up');
+
+      projects.update(cur => cur.map(p =>
+        p.id === projectId
+          ? { ...p, upvotes: p.upvotes + 1, downvotes: p.downvotes - 1, score: p.score + 2 }
+          : p
+      ));
     } else {
-      // add new upvote
       await updateDoc(projectRef, {
         upvotes: project.upvotes + 1,
         score: project.score + 1,
-        updatedAt: Timestamp.now()
+        updatedAt: serverTimestamp()
       });
-      await setUserVote(user.id, projectId, 'up');
-      
-      projects.update(current => 
-        current.map(p => 
-          p.id === projectId 
-            ? { ...p, upvotes: p.upvotes + 1, score: p.score + 1 }
-            : p
-        )
-      );
+      await setUserVote(uid, projectId, 'up');
+
+      projects.update(cur => cur.map(p =>
+        p.id === projectId
+          ? { ...p, upvotes: p.upvotes + 1, score: p.score + 1 }
+          : p
+      ));
     }
-  } catch (error) {
-    console.error('error upvoting project:', error);
+  } catch (err) {
+    console.error('error upvoting project:', err);
   }
 }
 
 export async function downvoteProject(projectId: string) {
   try {
-    const user = get(currentUser);
-    if (!user) {
-      console.error('user not authenticated');
-      return;
-    }
+    const uid = getAuth().currentUser?.uid;
+    if (!uid) { console.error('user not authenticated'); return; }
 
-    const currentProjects = get(projects);
-    const project = currentProjects.find(p => p.id === projectId);
+    const list = get(projects);
+    const project = list.find(p => p.id === projectId);
     if (!project) return;
 
-    const existingVote = await getUserVote(user.id, projectId);
     const projectRef = doc(db, 'projects', projectId);
+    const existing = await getUserVote(uid, projectId);
 
-    if (existingVote === 'down') {
-      // already downvoted, do nothing
-      return;
-    } else if (existingVote === 'up') {
-      // switch from up to down
+    if (existing === 'down') return;
+
+    if (existing === 'up') {
       await updateDoc(projectRef, {
         upvotes: project.upvotes - 1,
         downvotes: project.downvotes + 1,
-        score: project.score - 2, // -1 for removing up, -1 for adding down
-        updatedAt: Timestamp.now()
+        score: project.score - 2,
+        updatedAt: serverTimestamp()
       });
-      await setUserVote(user.id, projectId, 'down');
-      
-      projects.update(current => 
-        current.map(p => 
-          p.id === projectId 
-            ? { ...p, upvotes: p.upvotes - 1, downvotes: p.downvotes + 1, score: p.score - 2 }
-            : p
-        )
-      );
+     
+      await setUserVote(uid, projectId, 'down');
+
+      projects.update(cur => cur.map(p =>
+        p.id === projectId
+          ? { ...p, upvotes: p.upvotes - 1, downvotes: p.downvotes + 1, score: p.score - 2 }
+          : p
+      ));
     } else {
-      // add new downvote
       await updateDoc(projectRef, {
         downvotes: project.downvotes + 1,
         score: project.score - 1,
-        updatedAt: Timestamp.now()
+        updatedAt: serverTimestamp()
       });
-      await setUserVote(user.id, projectId, 'down');
-      
-      projects.update(current => 
-        current.map(p => 
-          p.id === projectId 
-            ? { ...p, downvotes: p.downvotes + 1, score: p.score - 1 }
-            : p
-        )
-      );
+
+      await setUserVote(uid, projectId, 'down');
+
+      projects.update(cur => cur.map(p =>
+        p.id === projectId
+          ? { ...p, downvotes: p.downvotes + 1, score: p.score - 1 }
+          : p
+      ));
     }
-  } catch (error) {
-    console.error('error downvoting project:', error);
+  } catch (err) {
+    console.error('error downvoting project:', err);
   }
 }
 
-async function getUserVote(userId: string, projectId: string): Promise<VoteType | null> {
-  const voteRef = doc(db, 'userVotes', `${userId}_${projectId}`);
-  const voteSnap = await getDoc(voteRef);
-  return voteSnap.exists() ? voteSnap.data().voteType : null;
+async function getUserVote(uid: string, projectId: string): Promise<VoteType | null> {
+  const ref = doc(db, 'projects', projectId, 'votes', uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  const n = snap.data().value as -1 | 0 | 1;
+  return n === 1 ? 'up' : n === -1 ? 'down' : null;
 }
 
-// update or create user vote record
-async function setUserVote(userId: string, projectId: string, voteType: VoteType) {
-  const voteRef = doc(db, 'userVotes', `${userId}_${projectId}`);
-  await setDoc(voteRef, {
-    userId,
-    projectId,
-    voteType,
-    timestamp: Timestamp.now()
-  });
+async function setUserVote(uid: string, projectId: string, voteType: VoteType) {
+  const ref = doc(db, 'projects', projectId, 'votes', uid);
+  await setDoc(ref, { value: toNum(voteType) });
 }
 
-// remove user vote record
-async function removeUserVote(userId: string, projectId: string) {
-  const voteRef = doc(db, 'userVotes', `${userId}_${projectId}`);
-  await deleteDoc(voteRef);
+async function removeUserVote(uid: string, projectId: string) {
+  const ref = doc(db, 'projects', projectId, 'votes', uid);
+  await deleteDoc(ref);
 }
 
 export async function getCurrentUserVote(projectId: string): Promise<VoteType | null> {
-  const user = get(currentUser);
-  if (!user) return null;
-  return getUserVote(user.id, projectId);
+  const uid = getAuth().currentUser?.uid;
+  if (!uid) return null;
+  return getUserVote(uid, projectId);
 }
 
 export type Comment = {

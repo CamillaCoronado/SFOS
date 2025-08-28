@@ -1,5 +1,6 @@
 <script lang="ts">
 import { upvoteProject, downvoteProject, getCurrentUserVote } from '$lib/stores/projects';
+import type { Project, VoteType} from '$lib/stores/projects';
 import { currentUser } from '$lib/stores/auth/auth';
 
 let userVote: VoteType | null = $state(null);
