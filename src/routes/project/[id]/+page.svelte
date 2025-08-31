@@ -3,18 +3,34 @@
   import { projects } from '$lib/stores/projects';
   import Voting from '$lib/components/Voting.svelte';
   import CommentThread from '$lib/CommentThread.svelte';
+  import GovBadge from '$lib/components/GovBadge.svelte';
+  import { readable, type Readable } from 'svelte/store';
+  import { userProfileStore } from '$lib/stores/userProfiles';
+  import type { UserProfile } from '$lib/stores/auth/auth';
+
   $: project = $projects.find(p => p.id === $page.params.id);
 
+
+  let authorProfile: Readable<UserProfile | null> = readable(null);
+  $: if (project) authorProfile = userProfileStore(project.authorId);
+  
 </script>
 
 <div class="max-w-4xl mx-auto px-4 py-8">
   {#if project}
+  <!-- back button -->
+    <a href="/projects" class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200">
+      ← Back to Projects
+    </a>
   <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-4">{project.title}</h1>
     
     <!-- meta info -->
     <div class="flex items-center gap-4 mb-6 text-sm text-gray-500">
       <span>by {project.authorName}</span>
+      {#if $authorProfile?.gov?.verified && $authorProfile?.gov?.showBadge}
+        <GovBadge size="xs" />
+      {/if}
       <span>•</span>
       <span>{project.createdAt.toLocaleDateString()}</span>
       <span>•</span>
@@ -69,11 +85,6 @@
       <h3 class="font-semibold text-gray-900 mb-3">Comments</h3>
       <CommentThread projectId={project.id} />
     </div>
-    
-    <!-- back button -->
-    <a href="/projects" class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200">
-      ← Back to Projects
-    </a>
   </div>
   {:else}
   <div class="max-w-4xl mx-auto px-4 py-8 text-center">

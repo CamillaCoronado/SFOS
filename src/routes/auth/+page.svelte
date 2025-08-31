@@ -1,60 +1,60 @@
 <!-- src/routes/auth/+page.svelte -->
 <script lang="ts">
-  import { login, register } from '$lib/stores/auth/auth';
+  import { login, register, type GovOrg } from '$lib/stores/auth/auth';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
- 
+
   let isLogin = true;
   let email = '';
   let password = '';
-  // username no longer required for signup
   let loading = false;
   let error = '';
-  let userType= '';
-  
-  // Check if we should default to register mode
+
+  // signup org selection
+  type UserType = 'civic-hacker' | 'government' | 'resident-org';
+  let userType: UserType = 'civic-hacker';
+
+  // map UI selection -> GovOrg used by store
+  const toOrg: Record<UserType, GovOrg> = {
+    'civic-hacker': 'private',
+    'government': 'government',
+    'resident-org': 'nonprofit'
+  };
+
+  // default to register mode if ?mode=register
   $: if ($page.url.searchParams.get('mode') === 'register') {
     isLogin = false;
   }
-  
+
   async function handleSubmit() {
     if (loading) return;
-    
     loading = true;
     error = '';
-    
-    try {
-      let result;
-      
-      if (isLogin) {
-        result = await login(email, password);
-      } else {
-        result = await register(email, password);
-      }
 
-      
-      
+    try {
+      const result = isLogin
+        ? await login(email, password)
+        : await register(email, password, toOrg[userType]); // ← passes org to enable GOV badge
+
       if (result.success) {
-        // Redirect to dashboard or previous page
         const redirect = $page.url.searchParams.get('redirect') || '/dashboard';
         goto(redirect);
       } else {
         error = result.error || 'Something went wrong';
       }
-    } catch (e) {
-      error = 'Something went wrong';
+    } catch (e: any) {
+      error = e?.message ?? 'Something went wrong';
     }
-    
+
     loading = false;
   }
-  
+
   function toggleMode() {
     isLogin = !isLogin;
     error = '';
-    // Clear form
     email = '';
     password = '';
-    userType = '';
+    userType = 'civic-hacker';
   }
 </script>
 
@@ -63,7 +63,6 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-  <!-- Header -->
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
     <div class="flex justify-center">
       <div class="w-12 h-12 bg-orange-500 rounded-full"></div>
@@ -73,8 +72,8 @@
     </h2>
     <p class="cursor-pointer mt-2 text-center text-sm text-gray-600">
       {isLogin ? "Don't have an account?" : 'Already have an account?'}
-      <button 
-        onclick={toggleMode} 
+      <button
+        onclick={toggleMode}
         class="cursor-pointer font-medium text-orange-600 hover:text-orange-500"
       >
         {isLogin ? 'Sign up' : 'Sign in'}
@@ -82,21 +81,23 @@
     </p>
   </div>
 
-  <!-- Form -->
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
       <form onsubmit={handleSubmit} class="space-y-6">
         {#if !isLogin}
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                I am a...
-            </label>
+            <span aria-label="choose label" class="block text-sm font-medium text-gray-700 mb-2">
+              I am a...
+            </span>
             <select bind:value={userType} class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                <option value="civic-hacker">Civic Hacker</option>
-                <option value="government">Government</option>
-                <option value="resident-org">Resident/Civic Organization</option>
+              <option value="civic-hacker">Civic Hacker</option>
+              <option value="government">Government Employee</option>
+              <option value="resident-org">Resident/Civic Organization</option>
             </select>
-        </div>
+            <p class="mt-1 text-xs text-gray-500">
+              GOV badge auto-enables for verified government emails (you can hide it later).
+            </p>
+          </div>
         {/if}
 
         <div>
@@ -114,6 +115,7 @@
             />
           </div>
         </div>
+
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">
             Password
