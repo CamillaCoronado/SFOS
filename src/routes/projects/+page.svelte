@@ -8,12 +8,11 @@
   import { page } from '$app/stores';
   import ProjectsSearchForm from '$lib/components/ProjectsSearchForm.svelte';
   import Header from '$lib/components/Header.svelte';
+  import type { Project } from '$lib/stores/projects';
+
   
   let searchQuery = '';
   let selectedTags: string[] = [];
-  let showNotifications = false;
-  let showProfileMenu = false;
-  $: unreadCount = notifications.filter(n => !n.read).length;
 
    $: {
     const q = $page.url.searchParams.get('q') ?? '';
@@ -45,48 +44,14 @@
     })
     .slice(0, 4);
 
-  export const notifications = [
-    {
-      id: '1',
-      type: 'upvote',
-      message: 'sarah_chen upvoted your project "AI-Powered Code Review Tool"',
-      projectId: '1',
-      read: false,
-      createdAt: new Date('2025-08-02T10:30:00')
-    },
-    {
-      id: '2', 
-      type: 'comment',
-      message: 'marcus_j commented on "AI-Powered Code Review Tool"',
-      projectId: '1',
-      read: false,
-      createdAt: new Date('2025-08-02T09:15:00')
-    },
-    {
-      id: '3',
-      type: 'collaboration',
-      message: 'alex_rivera wants to collaborate on "AI-Powered Code Review Tool"',
-      projectId: '1',
-      read: true,
-      createdAt: new Date('2025-08-01T16:45:00')
-    }
-  ];
-
-  function getNotificationIcon(type: string) {
-    switch(type) {
-      case 'upvote': return '👍';
-      case 'comment': return '💬';
-      case 'collaboration': return '🤝';
-      default: return '📝';
-    }
-  }
-
-  function markAsRead(notificationId: string) {
-    console.log('Mark notification as read:', notificationId);//mock
-  }
-  
-  // tags
-  $: allTags = [...new Set($projects.flatMap(p => p.tags))];
+      
+  // group projects by category (using first tag as category)
+  $: projectsByCategory = $projects.reduce((acc, project) => {
+    const category = project.tags[0] || 'uncategorized';
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(project);
+    return acc;
+  }, {} as Record<string, Project[]>);
   
   // filter
   $: filteredProjects = $projects.filter(project => {
@@ -110,17 +75,18 @@
 
   <!-- Search -->
   <div class="max-w-7xl mx-auto px-4 py-6">
-    <div class="w-full mx-auto mt-[72px]">
+    <div class="w-full flex gap-2 justify-start mx-auto mt-[72px]">
      <!-- Bind value so typing updates searchQuery; component internals unchanged -->
      <ProjectsSearchForm
       initial={searchQuery}
       on:search={(e) => (searchQuery = e.detail)}
+      on:filter={(e) => (selectedTags = e.detail)}
     />
     </div>
   </div>
 
   <!-- Popular projects -->
-  {#if !searchDebounced && popularProjects.length > 0}
+  {#if !searchDebounced && selectedTags.length > 0 && popularProjects.length > 0}
     <div class="max-w-7xl mx-auto px-4 pb-12">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">Popular Projects</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
