@@ -19,6 +19,7 @@ import {
   increment
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import type { Needs } from '$lib/components/NeedsEditor.svelte';
 
 type ProjectCategory = 'idea' | 'fleshed-out' | 'policy-proposal';
 
@@ -47,6 +48,7 @@ export interface Project {
     duration: string;
     contactMethod: 'discord' | 'email' | 'github' | 'other';
     contactInfo: string;
+    needs?: Needs | null;
 }
 
 export const projects = writable<Project[]>([]);
@@ -100,6 +102,7 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
       userVote: null,
       githubUrl: projectData.githubUrl || null, // ← Convert undefined to null
       imageUrl: projectData.imageUrl || null,
+      needs: projectData.needs ?? null,
     };
     
     const docRef = await addDoc(collection(db, 'projects'), project);
