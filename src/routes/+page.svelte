@@ -75,7 +75,7 @@
           </svg>
         </div>
         <div class="flex-1">
-          <h2 class= "text-3xl">Government</h2>
+          <h2 class= "text-3xl">Government Employee</h2>
           <p class="text-gray-700">
             Post tech challenges and ideas that civic technologists can tackle.
             Offer your insights to guide projects toward real-world impact and find innovative solutions faster.
