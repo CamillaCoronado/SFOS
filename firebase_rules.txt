@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function authed() { return request.auth != null; }
+    function isSelf(uid) { return authed() && request.auth.uid == uid; }
+    // -------- PROJECTS --------
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create: if authed();
+      allow update, delete: if authed() && request.auth.uid == resource.data.authorId;
+      
+      function isVoteUpdate() {
+        let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
+        let allowedChanges = ['upvotes','downvotes','score','updatedAt'];
+        return changedKeys.hasOnly(allowedChanges);
+      }
+      allow update: if authed() && isVoteUpdate();
+      
+      // ----- COMMENTS -----
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if authed()
+                      && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if authed()
+                              && request.auth.uid == resource.data.authorId;
+      }
+      // ----- VOTES -----
+      match /votes/{uid} {
+        function validVoteData() {
+          return request.resource.data.keys().hasOnly(['value']) &&
+                 (request.resource.data.value in [-1, 0, 1]);
+        }
+        allow read: if isSelf(uid);
+        allow write: if isSelf(uid) && validVoteData();
+      }
+    }
+    // -------- USERS --------
+    match /users/{uid} {
+      allow read, create, update, delete: if isSelf(uid);
+      allow read: if true;
+    	allow create: if request.auth != null && request.auth.uid == uid;
+    	allow update: if request.auth != null && request.auth.uid == uid;
+      // -------- NOTIFICATIONS--------
+      match /notifications/{notifId} {
+        function validNotifCreate() {
+          return request.resource.data.keys().hasAll(
+                   ['recipientId','createdBy','type','projectId','message','createdAt','read']
+                 )
+                 && request.resource.data.recipientId == uid
+                 && request.resource.data.createdBy == request.auth.uid
+                 && request.resource.data.read == false;
+        }
+        function validNotifUpdate() {
+          return request.resource.data.diff(resource.data).changedKeys().hasOnly(['read']);
+        }
+        allow create: if authed() && validNotifCreate();
+        allow read: if isSelf(uid);
+        allow update: if isSelf(uid) && validNotifUpdate();
+        allow delete: if isSelf(uid);
+      }
+    }
+
+    // -------- CATCH-ALL DENY --------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
