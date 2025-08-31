@@ -7,6 +7,7 @@
   import { readable, type Readable } from 'svelte/store';
   import { userProfileStore } from '$lib/stores/userProfiles';
   import type { UserProfile } from '$lib/stores/auth/auth';
+  import NeedsChips from '$lib/components/NeedsChips.svelte';
 
   $: project = $projects.find(p => p.id === $page.params.id);
 
@@ -46,6 +47,12 @@
     
     <!-- project details grid -->
     <div class="grid md:grid-cols-2 gap-6 mb-8">
+      {#if project.needs}
+        <div class="mb-6">
+          <h3 class="font-semibold text-gray-900 mb-2">Contributors needed</h3>
+          <NeedsChips needs={project.needs} />
+        </div>
+      {/if}
       <div>
         <h3 class="font-semibold text-gray-900 mb-2">Time Commitment</h3>
         <p class="text-gray-600">{project.timeCommitment}</p>

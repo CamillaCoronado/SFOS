@@ -1,6 +1,10 @@
 <script lang="ts">
   import { addProject } from '$lib/stores/projects';
   import { goto } from '$app/navigation';
+  import NeedsEditor, { type Needs } from '$lib/components/NeedsEditor.svelte';
+
+  let needs: Needs = { eng:0, design:0, data:0, product:0, research:0, ops:0, policy:0 }; // ✅ local state
+
   
   let title: string = '';
   let description: string = '';
@@ -13,6 +17,8 @@
   let contactMethod: 'discord' | 'email' | 'github' | 'other' = 'email';
   let contactInfo: string = '';
   let userType: 'civic-hacker' | 'government' | 'resident-org' = 'civic-hacker';
+
+
   
   let isLoading = false;
   let error: string | null = null;
@@ -34,7 +40,8 @@
         duration,
         contactMethod,
         contactInfo,
-        authorType: userType
+        authorType: userType, 
+        needs,
       });
       
       await goto('/projects'); // Wait for navigation
@@ -113,6 +120,11 @@
             <option value="advanced">Advanced</option>
           </select>
         </div>
+
+        <label for="experienceLevel" class="block text-sm font-medium text-gray-700 mb-2">
+          Contributors Needed
+        </label>
+        <NeedsEditor bind:needs={needs} />
 
         <!-- Time Commitment & Duration -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -4,6 +4,7 @@
   import { page } from '$app/stores';
   import type { Project, VoteType} from '$lib/stores/projects';
   import Voting from './Voting.svelte';
+  import NeedsChips from './NeedsChips.svelte';
 
   
   let { 
@@ -166,6 +167,9 @@
           </span>
         {/each}
       </div>
+      {#if project.needs}
+        <div class="mt-2"><NeedsChips needs={project.needs} /></div>
+      {/if}
       
       <!-- Stats -->
       <div class="flex items-center text-gray-600 text-sm">
