@@ -49,6 +49,7 @@ export interface Project {
     contactMethod: 'discord' | 'email' | 'github' | 'other';
     contactInfo: string;
     needs?: Needs | null;
+    kind?: 'project' | 'idea';
 }
 
 export const projects = writable<Project[]>([]);
@@ -103,6 +104,7 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
       githubUrl: projectData.githubUrl || null, // ← Convert undefined to null
       imageUrl: projectData.imageUrl || null,
       needs: projectData.needs ?? null,
+      kind: projectData.kind ?? 'project',
     };
     
     const docRef = await addDoc(collection(db, 'projects'), project);
