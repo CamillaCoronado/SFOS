@@ -17,6 +17,8 @@
   let contactMethod: 'discord' | 'email' | 'github' | 'other' = 'email';
   let contactInfo: string = '';
   let userType: 'civic-hacker' | 'government' | 'resident-org' = 'civic-hacker';
+  let kind: 'project' | 'idea' = 'project';
+
 
 
   
@@ -42,6 +44,7 @@
         contactInfo,
         authorType: userType, 
         needs,
+        kind,
       });
       
       await goto('/projects'); // Wait for navigation
@@ -125,6 +128,14 @@
           Contributors Needed
         </label>
         <NeedsEditor bind:needs={needs} />
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+          <select bind:value={kind} class="w-full px-3 py-2 border rounded-md">
+            <option value="project">Project</option>
+            <option value="idea">Idea</option>
+          </select>
+        </div>
 
         <!-- Time Commitment & Duration -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
