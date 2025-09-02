@@ -20,6 +20,7 @@ import {
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import type { Needs } from '$lib/components/NeedsEditor.svelte';
+import { start, stop, withLoading } from '$lib/stores/loading';
 
 type ProjectCategory = 'idea' | 'fleshed-out' | 'policy-proposal';
 
@@ -58,25 +59,31 @@ const toNum = (v: VoteType) => v === 'up' ? 1 : v === 'down' ? -1 : 0;
 
 
 // load projects from firestore
-export async function loadProjects() {
-  try {
-    const q = query(collection(db, 'projects'), orderBy('score', 'desc'));
-    const snapshot = await getDocs(q);
-    const projectsData = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        // convert firestore timestamps back to dates
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate() || new Date(),
-      };
-    }) as Project[];
-    
-    projects.set(projectsData);
-  } catch (error) {
-    console.error('Error loading projects:', error);
-  }
+export function loadProjects(): Promise<() => void> {
+  start('projects:list');
+
+  const q = query(collection(db, 'projects'), orderBy('score', 'desc'));
+  let first = true;
+
+  return new Promise((resolve, reject) => {
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const rows = snap.docs.map((d) => {
+          const data = d.data() as any;
+          return {
+            id: d.id,
+            ...data,
+            createdAt: data?.createdAt?.toDate?.() ?? new Date(),
+            updatedAt: data?.updatedAt?.toDate?.() ?? new Date(),
+          } as Project;
+        });
+        projects.set(rows);
+        if (first) { first = false; stop('projects:list'); resolve(unsub); }
+      },
+      (err) => { stop('projects:list'); reject(err); }
+    );
+  });
 }
 
 export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status' | 'authorType'> & { authorType: string }) {
