@@ -62,7 +62,7 @@
           <p class="text-gray-700">
             Explore existing ideas, find teammates, and turn your projects into reality.
             Share your solutions, get direct feedback from government and community experts, and discover more ways to contribute to civic tech across San Francisco. 
-            <a href="#" class="text-blue-600 hover:underline">learn more</a>.
+            <a href="/learn-more#hackers" class="text-blue-600 hover:underline">learn more</a>.
           </p>
         </div>
       </div>
@@ -79,7 +79,7 @@
           <p class="text-gray-700">
             Post tech challenges and ideas that civic technologists can tackle.
             Offer your insights to guide projects toward real-world impact and find innovative solutions faster.
-            <a href="#" class="text-blue-600 hover:underline">learn more</a>.
+            <a href="/learn-more#government" class="text-blue-600 hover:underline">learn more</a>.
           </p>
         </div>
       </div>
@@ -93,7 +93,7 @@
           <h2 class= "text-3xl">Residents & Civic Organizations</h2>
           <p class="text-gray-700">
             Suggest projects addressing your community’s needs, help shape ongoing initiatives, and let technologists know what would truly benefit your neighborhood.
-            <a href="#" class="text-blue-600 hover:underline">learn more</a>.
+            <a href="/learn-more#residents" class="text-blue-600 hover:underline">learn more</a>.
           </p>
         </div>
       </div>
