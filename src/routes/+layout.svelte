@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '/favicon.png';
 	import { loadProjects } from '$lib/stores/projects';
 	import { onMount } from 'svelte';
 	import { isLoading } from '$lib/stores/loading';
