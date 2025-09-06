@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '/favicon.png';
+	import favicon from '$lib/assets/favicon.svg';
 	import { loadProjects } from '$lib/stores/projects';
 	import { onMount } from 'svelte';
 	import { isLoading } from '$lib/stores/loading';
@@ -21,7 +21,7 @@ let { children } = $props();
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32" />
 </svelte:head>
 
 {@render children?.()}
