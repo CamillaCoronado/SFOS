@@ -5,7 +5,6 @@
   import { logout } from '$lib/stores/auth/auth';
 
   export let logoSrc: string = '/logo.png';
-  export let brand: string = 'SFOS';
   export let logoHref: string = '/';
   export let showAuth: boolean = true;
   export let sticky: boolean = true;
@@ -28,8 +27,7 @@
     <div class="flex h-16 items-center justify-between">
       <!-- Logo / Brand -->
       <button onclick={() => goto(logoHref)} class="flex items-center">
-        <img alt="logo" src={logoSrc} class="h-8 w-8 object-cover" />
-        <span class="ml-2 text-xl font-semibold text-orange-500">{brand}</span>
+        <img alt="logo" src={logoSrc} class="h-12 w-11 object-cover" />
       </button>
 
       <!-- Navigation -->

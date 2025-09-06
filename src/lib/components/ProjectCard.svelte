@@ -13,7 +13,7 @@
   }: {
     project: Project;
     variant?: 'popular' | 'standard' | 'dashboard';
-    backgroundColor?: string; // e.g. "from-amber-300 to-pink-300" or css color
+    backgroundColor?: string;
   } = $props();
 
   // Visual language: Project vs Idea
@@ -54,15 +54,14 @@
     console.log('Duplicate project:', project.id);
   }
 
-  // Helper for gradient/cover block
   const mediaGradient = $derived(
     backgroundColor
-      ? backgroundColor // allow utility classes like "from-cyan-300 to-indigo-300"
-      : kind === 'project' ? 'from-indigo-300 to-fuchsia-300' : 'from-amber-300 to-rose-300'
+      ? backgroundColor
+      : kind === 'project' ? 'from-orange-300 to-fuchsia-300' : 'from-amber-300 to-rose-300'
   );
 </script>
 
-<a href="/project/{project.id}" class="block group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 rounded-2xl">
+<a href="/project/{project.id}" class="block group focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600 rounded-2xl">
   {#if variant === 'popular'}
     <!-- Popular: compact, bold visuals -->
     <article class={`relative overflow-hidden rounded-2xl bg-white ring-1 ${cardCls[kind]} shadow-sm transition hover:shadow-md`}>
@@ -77,7 +76,7 @@
           </div>
         </div>
 
-        <h3 class="mt-2 text-base font-semibold text-gray-900 group-hover:text-indigo-700">
+        <h3 class="mt-2 text-base font-semibold text-gray-900 group-hover:text-orange-700">
           {truncateTitle(project.title, 60)}
         </h3>
         <p class="mt-1 text-sm text-gray-600 line-clamp-2">
@@ -175,7 +174,7 @@
           </div>
         </div>
 
-        <h3 class="mt-2 text-base font-semibold text-gray-900 group-hover:text-indigo-700">{truncateTitle(project.title, 72)}</h3>
+        <h3 class="mt-2 text-base font-semibold text-gray-900 group-hover:text-orange-700">{truncateTitle(project.title, 72)}</h3>
         <p class="mt-1 text-sm text-gray-600 line-clamp-2">{project.description?.length > 150 ? project.description.slice(0, 150) + '…' : project.description}</p>
 
         <!-- Tags -->

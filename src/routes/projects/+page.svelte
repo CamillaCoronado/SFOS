@@ -86,7 +86,7 @@
   </div>
 
   <!-- Popular projects -->
-  {#if !searchDebounced && selectedTags.length > 0 && popularProjects.length > 0}
+  {#if !searchDebounced && selectedTags.length === 0 && popularProjects.length > 0} 
     <div class="max-w-7xl mx-auto px-4 pb-12">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">Popular Projects</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -134,40 +134,19 @@ export async function upvoteProject(projectId: string) {
 
     const projectRef = doc(db, 'projects', projectId);
     const existing = await getUserVote(uid, projectId);
-
-    console.log('auth uid:', getAuth().currentUser?.uid);
-    console.log('project id:', projectId);
-
     if (existing === 'up') return;
 
-    if (existing === 'down') {
-      await updateDoc(projectRef, {
-        upvotes: project.upvotes + 1,
-        downvotes: project.downvotes - 1,
-        score: project.score + 2,
-        updatedAt: serverTimestamp()
-      });
-      await setUserVote(uid, projectId, 'up');
+    // compute new counts
+    const up = project.upvotes + 1;
+    const down = project.downvotes + (existing === 'down' ? -1 : 0);
+    const score = up - down;
 
-      projects.update(cur => cur.map(p =>
-        p.id === projectId
-          ? { ...p, upvotes: p.upvotes + 1, downvotes: p.downvotes - 1, score: p.score + 2 }
-          : p
-      ));
-    } else {
-      await updateDoc(projectRef, {
-        upvotes: project.upvotes + 1,
-        score: project.score + 1,
-        updatedAt: serverTimestamp()
-      });
-      await setUserVote(uid, projectId, 'up');
+    await updateDoc(projectRef, { upvotes: up, downvotes: down, score, updatedAt: serverTimestamp() });
+    await setUserVote(uid, projectId, 'up');
 
-      projects.update(cur => cur.map(p =>
-        p.id === projectId
-          ? { ...p, upvotes: p.upvotes + 1, score: p.score + 1 }
-          : p
-      ));
-    }
+    projects.update(cur => cur.map(p =>
+      p.id === projectId ? { ...p, upvotes: up, downvotes: down, score } : p
+    ));
   } catch (err) {
     console.error('error upvoting project:', err);
   }
@@ -184,43 +163,24 @@ export async function downvoteProject(projectId: string) {
 
     const projectRef = doc(db, 'projects', projectId);
     const existing = await getUserVote(uid, projectId);
-
     if (existing === 'down') return;
 
-    if (existing === 'up') {
-      await updateDoc(projectRef, {
-        upvotes: project.upvotes - 1,
-        downvotes: project.downvotes + 1,
-        score: project.score - 2,
-        updatedAt: serverTimestamp()
-      });
-     
-      await setUserVote(uid, projectId, 'down');
+    // compute new counts
+    const up = project.upvotes + (existing === 'up' ? -1 : 0);
+    const down = project.downvotes + 1;
+    const score = up - down;
 
-      projects.update(cur => cur.map(p =>
-        p.id === projectId
-          ? { ...p, upvotes: p.upvotes - 1, downvotes: p.downvotes + 1, score: p.score - 2 }
-          : p
-      ));
-    } else {
-      await updateDoc(projectRef, {
-        downvotes: project.downvotes + 1,
-        score: project.score - 1,
-        updatedAt: serverTimestamp()
-      });
+    await updateDoc(projectRef, { upvotes: up, downvotes: down, score, updatedAt: serverTimestamp() });
+    await setUserVote(uid, projectId, 'down');
 
-      await setUserVote(uid, projectId, 'down');
-
-      projects.update(cur => cur.map(p =>
-        p.id === projectId
-          ? { ...p, downvotes: p.downvotes + 1, score: p.score - 1 }
-          : p
-      ));
-    }
+    projects.update(cur => cur.map(p =>
+      p.id === projectId ? { ...p, upvotes: up, downvotes: down, score } : p
+    ));
   } catch (err) {
     console.error('error downvoting project:', err);
   }
 }
+
 
 async function getUserVote(uid: string, projectId: string): Promise<VoteType | null> {
   const ref = doc(db, 'projects', projectId, 'votes', uid);

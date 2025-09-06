@@ -7,6 +7,8 @@ import {
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
+type Actor = { uid: string; name?: string; avatarUrl?: string };
+
 export type Notification = {
   id: string;
   type: 'upvote' | 'comment' | 'reply' | 'mention' | 'system';
@@ -14,7 +16,7 @@ export type Notification = {
   projectId?: string;
   read: boolean;
   createdAt: any; // Firestore Timestamp
-  actor?: { uid: string; name?: string; avatarUrl?: string };
+  actor?: Actor;
 };
 
 export const notifications = writable<Notification[]>([]);
@@ -62,7 +64,7 @@ export async function markAllRead(uid: string) {
 // Optional helper to create a notification somewhere in your app:
 export async function pushNotification(
   recipientUid: string,
-  payload: { type: 'comment'|'reply'|'upvote'; projectId: string; message: string }
+  payload: { type: 'comment'|'reply'|'upvote'; projectId: string; message: string; actor?: Actor; }
 ) {
   const authUid = getAuth().currentUser?.uid; // must be Firebase auth UID
   if (!authUid) throw new Error('Not signed in');
@@ -75,6 +77,7 @@ export async function pushNotification(
     projectId: payload.projectId,
     message: payload.message,
     createdAt: serverTimestamp(),  // REQUIRED key
-    read: false                    // REQUIRED: must be false on create
+    read: false,
+    ...(payload.actor ? { actor: payload.actor } : {})                    // REQUIRED: must be false on create
   });
 }

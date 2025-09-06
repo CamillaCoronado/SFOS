@@ -9,8 +9,7 @@
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <!-- Branding / Home -->
       <a href="/" class="flex items-center gap-2">
-        <img src="/logo.png" alt="SFOS Logo" class="w-8 h-8 object-cover" />
-        <span class="text-xl font-semibold text-orange-500">SFOS</span>
+        <img src="/logo.png" alt="SFOS Logo" class="w-12 h-11 object-cover" />
       </a>
 
       <!-- Jump links -->

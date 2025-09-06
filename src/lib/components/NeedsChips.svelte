@@ -10,6 +10,7 @@
   $: pairs = needs
     ? (Object.entries(needs) as [keyof Needs, number][])
         .filter(([,v]) => v > 0)
+        .sort((a, b) => a[0].localeCompare(b[0])) // stable alphabetical order
     : [];
 </script>
 
