@@ -21,7 +21,7 @@ let { children } = $props();
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32" />
 </svelte:head>
 
 {@render children?.()}

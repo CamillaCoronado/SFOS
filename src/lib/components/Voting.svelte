@@ -1,38 +1,85 @@
 <script lang="ts">
-import { upvoteProject, downvoteProject, getCurrentUserVote } from '$lib/stores/projects';
-import type { Project, VoteType} from '$lib/stores/projects';
-import { currentUser } from '$lib/stores/auth/auth';
+  import { upvoteProject, downvoteProject, getCurrentUserVote } from '$lib/stores/projects';
+  import type { Project, VoteType } from '$lib/stores/projects';
+  import { currentUser } from '$lib/stores/auth/auth';
 
-let userVote: VoteType | null = $state(null);
-let { project }: { project: Project } = $props();
+  let { project }: { project: Project } = $props();
+  let userVote: VoteType | null = $state(null);
 
-
-$effect(() => {
-    if (currentUser && project.id) {
-        getCurrentUserVote(project.id).then(vote => {
-        userVote = vote;
-        });
+  $effect(() => {
+    if ($currentUser && project?.id) {
+      getCurrentUserVote(project.id).then(v => (userVote = v));
+    } else {
+      userVote = null;
     }
-});
+  });
 
+  function abbreviate(n: number | undefined) {
+    const v = Number(n ?? 0);
+    if (v >= 1_000_000) return (v / 1_000_000).toFixed(v % 1_000_000 ? 1 : 0) + 'M';
+    if (v >= 1_000) return (v / 1_000).toFixed(v % 1_000 ? 1 : 0) + 'k';
+    return String(v);
+  }
+
+  function handleUpvote(e?: Event) {
+    e?.preventDefault();
+    e?.stopPropagation();
+    upvoteProject(project.id);
+  }
+
+  function handleDownvote(e?: Event) {
+    e?.preventDefault();
+    e?.stopPropagation();
+    downvoteProject(project.id);
+  }
 </script>
 
-<div class="flex items-center p-2 rounded {userVote === 'up' ? 'bg-green-100' : userVote === 'down' ? 'bg-red-100' : 'bg-gray-50'}">
-    <button aria-label="upvote" onclick={()=>upvoteProject(project.id)} class="flex items-center mr-2 hover:text-green-600">
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-        </svg>
-        </button>
-        
-        <span>{project.score}</span>
-        
-        <button 
-        aria-label="downvote" 
-        onclick={()=>downvoteProject(project.id)} 
-        class="flex items-center mr-4 hover:text-red-600">
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-    </button>
-</div>
+<div
+  class="flex items-center justify-center gap-2 select-none"
+  role="group"
+  aria-label="Project voting controls"
+>
+  <button
+    type="button"
+    title={userVote === 'up' ? 'Remove upvote' : 'Upvote'}
+    aria-pressed={userVote === 'up'}
+    class="flex items-center justify-center w-5 h-5 rounded hover:bg-orange-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 transition"
+    onclick={handleUpvote}
+  >
+    <div
+      class={`w-0 h-0 border-l-4 border-r-4 border-b-6 ${
+        userVote === 'up' ? 'border-b-orange-500' : 'border-b-gray-400'
+      } border-l-transparent border-r-transparent`}
+    ></div>
+    <span class="sr-only">Upvote</span>
+  </button>
 
+  <span
+    class={`w-5 h-5 flex items-center justify-center font-bold text-sm ${
+      userVote === 'up'
+        ? 'text-orange-600'
+        : userVote === 'down'
+        ? 'text-blue-600'
+        : 'text-gray-700'
+    }`}
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    {abbreviate(project.score)}
+  </span>
+
+  <button
+    type="button"
+    title={userVote === 'down' ? 'Remove downvote' : 'Downvote'}
+    aria-pressed={userVote === 'down'}
+    class="flex items-center justify-center w-5 h-5 rounded hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition"
+    onclick={handleDownvote}
+  >
+    <div
+      class={`w-0 h-0 border-l-4 border-r-4 border-t-6 ${
+        userVote === 'down' ? 'border-t-blue-500' : 'border-t-gray-400'
+      } border-l-transparent border-r-transparent`}
+    ></div>
+    <span class="sr-only">Downvote</span>
+  </button>
+</div>
