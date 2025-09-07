@@ -65,7 +65,7 @@
           Build the city you live in.
         </h1>
         <p class="max-w-2xl text-base sm:text-lg text-gray-600">
-          SFOS is where neighbors launch small, useful projects—then grow them with votes, contributors, and micro-grants.
+          SFOS is a platform for residents, government, and civic technologists to collectively find the best ideas for how tech projects can help the city - and to turn those ideas into reality.
         </p>
 
         <!-- Replaces inline search with your component -->
@@ -99,9 +99,9 @@
 
     <ol class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-5">
       {#each [
-        { n: '1', title: 'Post a project', copy: 'Idea, neighborhood, needs. Keep it small and shippable.' },
-        { n: '2', title: 'Gather momentum', copy: 'Votes surface demand; comments find collaborators.' },
-        { n: '3', title: 'Build & show progress', copy: 'Ship updates; unlock micro-grants as milestones land.' }
+        { n: '1', title: 'Post a project', copy: 'Anyone can add an idea or project to the library, and anyone can upvote, downvote, or comment.' },
+        { n: '2', title: 'Gather momentum', copy: ' Ideas get discussed and refined into well-scoped projects' },
+        { n: '3', title: 'Build & show progress', copy: 'Projects get collaborators, feedback, advisors, and sponsors–and get built' }
       ] as step}
         <li class="rounded-2xl bg-white ring-1 ring-gray-200 p-6">
           <div class="flex items-center gap-3">
