@@ -3,6 +3,7 @@
   import { login, register, type GovOrg } from '$lib/stores/auth/auth';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { onMount } from 'svelte';
 
   let isLogin = true;
   let email = '';
@@ -48,6 +49,11 @@
 
     loading = false;
   }
+
+   onMount(() => {
+    const qEmail = $page.url.searchParams.get('email');
+    if (qEmail) email = qEmail;
+  });
 
   function toggleMode() {
     isLogin = !isLogin;
@@ -112,6 +118,8 @@
               type="email"
               bind:value={email}
               required
+              autocomplete="email"
+              inputmode="email"
               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
               placeholder="john@example.com"
             />
