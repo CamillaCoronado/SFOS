@@ -32,7 +32,7 @@
   // Gradient classes
   const DEFAULT_GRADIENT: Record<'project' | 'idea', string> = {
     project: 'from-orange-300 to-fuchsia-300',
-    idea: 'from-amber-300 to-rose-300'
+    idea: 'from-amber-300 to-amber-500'
   };
   $: mediaGradient = (backgroundGradient && backgroundGradient.trim()) || DEFAULT_GRADIENT[kind];
 

@@ -57,7 +57,7 @@
   const mediaGradient = $derived(
     backgroundColor
       ? backgroundColor
-      : kind === 'project' ? 'from-orange-300 to-fuchsia-300' : 'from-amber-300 to-rose-300'
+      : kind === 'project' ? 'from-orange-300 to-fuchsia-300' : 'from-amber-300 to-amber-500'
   );
 </script>
 

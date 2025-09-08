@@ -22,10 +22,10 @@
   $: ideasCount    = list.filter(p => p.kind === 'idea').length;
   $: total         = list.length;
 
-  function submitWaitlist(e: Event) {
+  function handleSubmit(e: Event) {
     e.preventDefault();
-    // TODO: wire to real waitlist action
-    email = '';
+    if (!email) return;
+    goto(`/auth?mode=register&email=${encodeURIComponent(email)}`);
   }
 
   // Featured = top 3 by score (fallback to first 3)
@@ -232,7 +232,7 @@
         <p class="mt-1 text-sm text-gray-600">
           Sign up to share your ideas, vote on projects, and get invites to community build-days.
         </p>
-        <form onsubmit={(e) => submitWaitlist(e)} class="mt-4 flex flex-col sm:flex-row gap-3">
+        <form onsubmit={handleSubmit} class="mt-4 flex flex-col sm:flex-row gap-3">
           <input
             type="email"
             required
@@ -242,6 +242,7 @@
           />
           <button
             type="submit"
+            onclick={() => goto('/auth?mode=register')}
             class="rounded-xl px-2 py-2 flex-[30%] min-w-4 text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 active:scale-[.99]"
           >
             Sign up
@@ -272,7 +273,3 @@
     </div>
   </footer>
 </div>
-
-<style>
-  .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-</style>
