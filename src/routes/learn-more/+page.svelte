@@ -1,6 +1,9 @@
 <!-- src/routes/learn-more/+page.svelte -->
 <script lang="ts">
   import { goto } from '$app/navigation';
+
+  export let logoSrc: string = '/logo.png';
+  export let logoHref: string = '/';
 </script>
 
 <div class="min-h-screen bg-gray-50 text-gray-800">
@@ -8,9 +11,9 @@
     <nav class="sticky top-0 bg-white shadow-sm z-10">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <!-- Branding / Home -->
-      <a href="/" class="flex items-center gap-2">
-        <img src="/logo.png" alt="SFOS Logo" class="w-12 h-11 object-cover" />
-      </a>
+       <button onclick={() => goto(logoHref)} class="flex items-center">
+        <img alt="logo" src={logoSrc} class="h-12 w-11 object-cover" />
+      </button>
 
       <!-- Jump links -->
       <div class="flex gap-6 text-sm font-medium">
