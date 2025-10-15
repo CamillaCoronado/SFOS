@@ -7,7 +7,8 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
+		interface Locals {
+      user: import('firebase-admin/auth').DecodedIdToken | null;
+    }
 	}
 }
-
-export {};

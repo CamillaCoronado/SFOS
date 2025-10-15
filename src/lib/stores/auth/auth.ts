@@ -2,6 +2,8 @@
 import { writable, get } from 'svelte/store';
 import { auth } from '$lib/firebase';
 import {
+  setPersistence,
+  browserLocalPersistence,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -112,19 +114,24 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 });
 
 // -------------------- API --------------------
-export async function login(
-  email: string,
-  password: string
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    // Sync gov flags after login
-    await ensureGovFlags(cred.user);
-    return { success: true };
-  } catch (error: any) {
-    console.error('login error:', error);
-    return { success: false, error: error.message };
-  }
+export async function login(email: string, password: string) {
+  await setPersistence(auth, browserLocalPersistence);
+  const cred = await signInWithEmailAndPassword(auth, email, password);
+  const idToken = await cred.user.getIdToken(true);
+
+  await fetch('/api/session', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ idToken })
+  });
+
+  return cred.user;
+}
+
+export async function logout() {
+  await signOut(auth);
+  await fetch('/api/session', { method: 'DELETE' });
+  window.location.href = '/';
 }
 
 // Optional orgType lets you default-show badge when user chose “government” at signup
@@ -141,10 +148,6 @@ export async function register(
     console.log('Firebase error details:', { code: error.code, message: error.message, error });
     return { success: false, error: error.message };
   }
-}
-
-export async function logout(): Promise<void> {
-  await signOut(auth);
 }
 
 // -------------------- Compatibility stubs --------------------

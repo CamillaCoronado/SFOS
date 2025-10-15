@@ -7,6 +7,19 @@
   import { projects } from '$lib/stores/projects';
   import { goto } from '$app/navigation';
 
+  import { currentUser } from '$lib/stores/auth/auth';
+  import { onMount } from 'svelte';
+
+  onMount(() => {
+    const unsubscribe = currentUser.subscribe((user) => {
+      if (user) {
+        goto('/dashboard', { replaceState: true });
+      }
+    });
+
+    return unsubscribe;
+  });
+
   let email = '';
   let q = '';
   let selectedTags: string[] = [];

@@ -57,6 +57,10 @@
 
             {#if showProfileMenu}
               <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
+                <button onclick={() => (window.location.href = '/dashboard')} 
+                  class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm">
+                  Dashboard
+                </button>                
                 <button onclick={editProfile} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm">
                   Edit Profile
                 </button>
