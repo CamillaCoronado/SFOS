@@ -114,18 +114,22 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 });
 
 // -------------------- API --------------------
-export async function login(email: string, password: string) {
-  await setPersistence(auth, browserLocalPersistence);
-  const cred = await signInWithEmailAndPassword(auth, email, password);
-  const idToken = await cred.user.getIdToken(true);
+export async function login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const idToken = await cred.user.getIdToken(true);
 
-  await fetch('/api/session', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ idToken })
-  });
+    await fetch('/api/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ idToken })
+    });
 
-  return cred.user;
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
 }
 
 export async function logout() {
