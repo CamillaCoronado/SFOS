@@ -5,8 +5,12 @@
   import ProjectsSearchForm from '$lib/components/ProjectsSearchForm.svelte';
   import Header from '$lib/components/Header.svelte';
   import ProjectCard from '$lib/components/ProjectCard.svelte';
+  import { deleteProject as deleteProjectFn } from '$lib/stores/projects';
 
   export let myProjects: any[] = [];
+
+  let showDeleteConfirm = false;
+  let projectToDelete: string | null = null;
 
   // Source data (treat missing fields gracefully)
   $: list = ($projects ?? []).map(p => ({
@@ -91,15 +95,27 @@
   $: unreadCount = notifications.filter(n => !n.read).length;
   
   function editProject(projectId: string) {
-    console.log('Edit project:', projectId);//mocks
+    goto(`/project/${projectId}/edit`);
   }
   
   function deleteProject(projectId: string) {
-    console.log('Delete project:', projectId);//mocks
+    projectToDelete = projectId;
+    showDeleteConfirm = true;
+  }
+  
+async function confirmDelete() {
+    if (!projectToDelete) return;
+    try {
+      await deleteProjectFn(projectToDelete);
+      showDeleteConfirm = false;
+      projectToDelete = null;
+    } catch (err: any) {
+      alert(err.message);
+    }
   }
   
   function duplicateProject(projectId: string) {
-    console.log('Duplicate project:', projectId);//mocks
+    goto(`/create?duplicate=${projectId}`);
   }
   
   function editProfile() {
@@ -348,4 +364,21 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="fixed inset-0 z-0" onclick={() => {showProfileMenu = false; showNotifications = false;}}></div>
+{/if}
+
+{#if showDeleteConfirm}
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onclick={() => showDeleteConfirm = false}>
+    <div class="rounded-xl bg-white p-6 shadow-xl max-w-sm" onclick={(e) => e.stopPropagation()}>
+      <h3 class="text-lg font-semibold text-gray-900">delete project?</h3>
+      <p class="mt-2 text-sm text-gray-600">this can't be undone</p>
+      <div class="mt-4 flex gap-2 justify-end">
+        <button onclick={() => showDeleteConfirm = false} class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+          cancel
+        </button>
+        <button onclick={confirmDelete} class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+          delete
+        </button>
+      </div>
+    </div>
+  </div>
 {/if}
