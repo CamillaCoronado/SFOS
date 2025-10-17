@@ -319,3 +319,49 @@ export function listenToReplies(projectId: string, parentId: string, cb: (rows: 
     cb(snap.docs.map(d => ({ id: d.id, ...d.data() } as Comment)))
   );
 }
+
+export async function deleteProject(projectId: string) {
+  try {
+    const uid = getAuth().currentUser?.uid;
+    if (!uid) throw new Error('not authenticated');
+
+    const list = get(projects);
+    const project = list.find(p => p.id === projectId);
+    if (!project || project.authorId !== uid) throw new Error('unauthorized');
+
+    const projectRef = doc(db, 'projects', projectId);
+    await deleteDoc(projectRef);
+
+    projects.update(cur => cur.filter(p => p.id !== projectId));
+  } catch (err) {
+    console.error('error deleting project:', err);
+    throw err;
+  }
+}
+
+export async function updateProject(projectId: string, updates: Partial<Omit<Project, 'id' | 'authorId' | 'createdAt'>>) {
+  try {
+    const uid = getAuth().currentUser?.uid;
+    if (!uid) throw new Error('not authenticated');
+
+    const list = get(projects);
+    const project = list.find(p => p.id === projectId);
+    if (!project || project.authorId !== uid) throw new Error('unauthorized');
+
+    // filter out undefined values
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates, updatedAt: serverTimestamp() })
+        .filter(([_, v]) => v !== undefined)
+    );
+
+    const projectRef = doc(db, 'projects', projectId);
+    await updateDoc(projectRef, cleanUpdates);
+
+    projects.update(cur => cur.map(p =>
+      p.id === projectId ? { ...p, ...updates } : p
+    ));
+  } catch (err) {
+    console.error('error updating project:', err);
+    throw err;
+  }
+}

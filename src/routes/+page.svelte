@@ -41,7 +41,6 @@
     goto(`/auth?mode=register&email=${encodeURIComponent(email)}`);
   }
 
-  // Featured = top 3 by score (fallback to first 3)
   $: featured = ($projects ?? [])
     .slice()
     .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
