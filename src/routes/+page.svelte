@@ -73,10 +73,10 @@
         </span>
 
         <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight">
-          Build the city you live in.
+          A platform for government, community, and technologists to connect and build towards a better SF.
         </h1>
         <p class="max-w-2xl text-base sm:text-lg text-gray-600">
-          SFOS is a platform for residents, government, and civic technologists to collectively find the best ideas for how tech projects can help the city - and to turn those ideas into reality.
+          SFOS is a community-driven library of civic technology ideas, active projects, and actionable policies, ranging from big-picture visions to projects getting built right now.
         </p>
 
         <!-- Replaces inline search with your component -->
@@ -104,7 +104,7 @@
 
 
 <!-- HOW IT WORKS -->
-<section class="py-12 sm:py-16 bg-white">
+<!-- <section class="py-12 sm:py-16 bg-white">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">How it works</h2>
 
@@ -126,7 +126,7 @@
       {/each}
     </ol>
   </div>
-</section>
+</section> -->
 
 <!-- WHO IT’S FOR -->
 <section class="py-12 sm:py-16">
@@ -143,10 +143,11 @@
               <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707z"/>
             </svg>
           </div>
-          <h3 class="text-base font-semibold">Civic hackers</h3>
+          <h3 class="text-base font-semibold">Civic Hackers</h3>
         </div>
         <p class="mt-3 text-sm text-gray-600">
-          Explore ideas, find teammates, and ship real tools. 
+          Explore existing ideas, find teammates, and turn your projects into reality.
+ Share your solutions, get direct feedback from government and community experts, and discover more ways to contribute to civic tech across San Francisco. 
           <a href="/learn-more#hackers" class="text-orange-600 hover:underline">Learn more</a>.
         </p>
       </article>
@@ -161,10 +162,11 @@
                 d="M15.232 5.232l3.536 3.536M4 20l4.243-1.061a2 2 0 00.894-.516L19 8.5a2.5 2.5 0 10-3.536-3.536L5.6 14.828a2 2 0 00-.516.894L4 20z"/>
             </svg>
           </div>
-          <h3 class="text-base font-semibold">Government staff</h3>
+          <h3 class="text-base font-semibold">Government Staff</h3>
         </div>
         <p class="mt-3 text-sm text-gray-600">
-          Post challenges, guide efforts, and accelerate impact.
+          Post tech challenges and ideas that civic technologists can tackle.
+ Offer your insights to guide projects toward real-world impact and find innovative solutions faster.
           <a href="/learn-more#government" class="text-orange-600 hover:underline">Learn more</a>.
         </p>
       </article>
@@ -179,10 +181,10 @@
                 d="M3 12l9-7 9 7M5 10v10h14V10M9 21v-6h6v6"/>
             </svg>
           </div>
-          <h3 class="text-base font-semibold">Residents & orgs</h3>
+          <h3 class="text-base font-semibold">Residents & Civic Organizations</h3>
         </div>
         <p class="mt-3 text-sm text-gray-600">
-          Signal needs, shape initiatives, and track progress.
+          Suggest projects addressing your community’s needs, help shape ongoing initiatives, and let technologists know what would truly benefit your neighborhood.
           <a href="/learn-more#residents" class="text-orange-600 hover:underline">Learn more</a>.
         </p>
       </article>
