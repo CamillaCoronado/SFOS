@@ -3,6 +3,9 @@
   import NotificationsBell from '$lib/components/NotificationsBell.svelte';
   import { currentUser } from '$lib/stores/auth/auth';
   import { logout } from '$lib/stores/auth/auth';
+  import { onMount } from 'svelte';
+  import { doc, getDoc } from 'firebase/firestore';
+  import { db } from '$lib/firebase';
 
   export let logoSrc: string = '/logo.png';
   export let logoHref: string = '/';
@@ -12,14 +15,36 @@
   export let className: string = '';
 
   let showProfileMenu = false;
+  let displayName = '';
+  let avatarUrl = '';
 
   function editProfile() { goto('/profile'); }
-  function openSettings() { goto('/settings'); }
+  function openSettings() { goto('/dashboard/settings'); }
 
   const headerBase =
     'w-full top-0 z-50 ' +
     (transparent ? 'bg-transparent' : 'bg-white shadow-sm') +
     (sticky ? ' fixed' : ' static');
+
+  // load profile data
+  $: if ($currentUser) {
+    loadProfile();
+  }
+
+  async function loadProfile() {
+    if (!$currentUser) return;
+    
+    try {
+      const userDoc = await getDoc(doc(db, 'users', $currentUser.id));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        displayName = data.displayName || '';
+        avatarUrl = data.avatarUrl || '';
+      }
+    } catch (err) {
+      console.error('Failed to load profile:', err);
+    }
+  }
 </script>
 
 <header class={`${headerBase} ${className}`}>
@@ -45,11 +70,11 @@
               class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 text-sm"
             >
               <img
-                src={$currentUser?.avatar || '/avatar.png'}
+                src={avatarUrl || $currentUser?.avatar || '/avatar.png'}
                 alt="profile"
                 class="w-6 h-6 rounded-full bg-gray-300 object-cover"
               />
-              <span>{$currentUser?.username || 'Profile'}</span>
+              <span>{displayName || $currentUser?.username || 'Profile'}</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>

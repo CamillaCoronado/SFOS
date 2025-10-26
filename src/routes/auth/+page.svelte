@@ -4,10 +4,13 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
+  import { doc, setDoc } from 'firebase/firestore';
+  import { db } from '$lib/firebase';
 
   let isLogin = true;
   let email = '';
   let password = '';
+  let displayName = '';
   let loading = false;
   let error = '';
 
@@ -35,9 +38,19 @@
     try {
       const result = isLogin
         ? await login(email, password)
-        : await register(email, password, toOrg[userType]); // ← passes org to enable GOV badge
+        : await register(email, password, toOrg[userType]);
 
       if (result.success) {
+        // if signup, save display name to firestore
+        if (!isLogin && displayName.trim()) {
+          const user = await import('$lib/firebase').then(m => m.auth.currentUser);
+          if (user) {
+            await setDoc(doc(db, 'users', user.uid), {
+              displayName: displayName.trim()
+            }, { merge: true });
+          }
+        }
+
         const redirect = $page.url.searchParams.get('redirect') || '/dashboard';
         goto(redirect);
       } else {
@@ -60,6 +73,7 @@
     error = '';
     email = '';
     password = '';
+    displayName = '';
     userType = 'civic-hacker';
   }
 </script>
@@ -104,6 +118,26 @@
             </select>
             <p class="mt-1 text-xs text-gray-500">
               GOV badge auto-enables for verified government emails (you can hide it later).
+            </p>
+          </div>
+
+          <div>
+            <label for="displayName" class="block text-sm font-medium text-gray-700">
+              Display name
+            </label>
+            <div class="mt-1">
+              <input
+                id="displayName"
+                type="text"
+                bind:value={displayName}
+                required
+                autocomplete="name"
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                placeholder="John Doe"
+              />
+            </div>
+            <p class="mt-1 text-xs text-gray-500">
+              This is how you'll appear to others
             </p>
           </div>
         {/if}

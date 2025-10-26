@@ -1,23 +1,33 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import { loadProjects } from '$lib/stores/projects';
 	import { onMount } from 'svelte';
 	import { isLoading } from '$lib/stores/loading';
   	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import { currentUser } from '$lib/stores/auth/auth';
+	import type { LayoutData } from './$types';
+
+	let { data, children }: { data: LayoutData, children?: any } = $props();
+
+	// hydrate store immediately with server data if available
+	if (data.serverUser && !$currentUser) {
+		currentUser.set({
+			id: data.serverUser.uid,
+			username: data.serverUser.email?.split('@')[0] || 'user',
+			email: data.serverUser.email || '',
+			joinedAt: new Date()
+		});
+	}
 
   onMount(() => {
     let unsub: (() => void) | undefined;
 
-    // loadProjects resolves after first snapshot and gives us the unsubscribe
     loadProjects()
       .then((u) => { unsub = u; })
       .catch((e) => console.error('loadProjects failed', e));
 
     return () => { unsub?.(); };
   });
-
-let { children } = $props();
 </script>
 
 <svelte:head>
