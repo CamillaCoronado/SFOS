@@ -15,8 +15,10 @@ if (!admin.apps.length) {
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
-  // verify session cookie
   const sessionCookie = event.cookies.get('session');
+  
+  console.log('Hook running for:', event.url.pathname);
+  console.log('Session cookie exists?', !!sessionCookie);
   
   if (sessionCookie) {
     try {
@@ -25,17 +27,19 @@ export const handle: Handle = async ({ event, resolve }) => {
         uid: decodedClaims.uid,
         email: decodedClaims.email || null
       };
+      console.log('User verified:', event.locals.user.email);
     } catch (err) {
-      // invalid/expired cookie
+      console.error('Session verification failed:', err);
       event.cookies.delete('session', { path: '/' });
     }
   }
   
-  // check protected routes
-  const protectedRoutes = ['/dashboard', '/create'];
+  const protectedRoutes = ['/dashboard', '/create', '/settings'];
   const isProtectedRoute = protectedRoutes.some(route => 
     event.url.pathname.startsWith(route)
   );
+  
+  console.log('Is protected?', isProtectedRoute, 'Has user?', !!event.locals.user);
   
   if (isProtectedRoute && !event.locals.user) {
     throw redirect(302, `/auth?redirect=${encodeURIComponent(event.url.pathname)}`);

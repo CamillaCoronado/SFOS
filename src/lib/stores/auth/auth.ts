@@ -30,7 +30,10 @@ export type UserProfile = {
   uid: string;
   displayName?: string;
   email?: string;
-  gov?: GovInfo; // optional on profile
+  bio?: string;
+  avatarUrl?: string;
+  emailVisibility?: 'public' | 'logged-in' | 'private';
+  gov?: GovInfo;
 };
 
 export type AppUser = {
