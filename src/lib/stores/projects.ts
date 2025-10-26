@@ -44,11 +44,38 @@ export interface Project {
     views: number;
     imageUrl?: string;
     userVote?: 'up' | 'down' | null;
-    experienceLevel: 'beginner' | 'intermediate' | 'advanced';
-    timeCommitment: string;
-    duration: string;
-    contactMethod: 'discord' | 'email' | 'github' | 'other';
-    contactInfo: string;
+    contactMethod?: 'discord' | 'email' | 'github' | 'other' | 'none';
+    contactInfo?: string;
+    
+    // project type
+    projectType: 'tech' | 'policy' | 'problem';
+    
+    // tech project fields
+    stage?: 'idea' | 'scoping' | 'ready' | 'progress' | 'live';
+    timeEstimate?: 'weekend' | 'weeks' | 'months' | 'ongoing';
+    techNeeded?: string[];
+    lookingFor?: string[];
+    
+    // policy fields
+    relevantAgency?: string;
+    policyTimeline?: 'immediate' | '6-12mo' | '1-2yr' | 'multi-year';
+    requires?: string[];
+    precedents?: string;
+    
+    // problem fields
+    whoAffected?: string;
+    whatsNotWorking?: string;
+    attemptedSolutions?: string;
+    openTo?: string[];
+    
+    // shared optional
+    partnerOrgs?: string;
+    links?: string[];
+    
+    // legacy fields (keep for backward compat)
+    experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
+    timeCommitment?: string;
+    duration?: string;
     needs?: Needs | null;
     kind?: 'project' | 'idea';
 }
@@ -86,11 +113,11 @@ export function loadProjects(): Promise<() => void> {
   });
 }
 
-export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status' | 'authorType'> & { authorType: string }) {
+export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status'> & { authorType: string }) {
   try {
     const user = get(currentUser);
     if (!user) {
-      console.error('User not authenticated');
+      console.error('user not authenticated');
       return null;
     }
 
@@ -108,17 +135,48 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
       score: 0,
       views: 0,
       userVote: null,
-      githubUrl: projectData.githubUrl || null, // ← Convert undefined to null
+      
+      // convert undefined to null for firestore
+      githubUrl: projectData.githubUrl || null,
       imageUrl: projectData.imageUrl || null,
+      contactMethod: projectData.contactMethod || null,
+      contactInfo: projectData.contactInfo || null,
+      
+      // tech fields
+      stage: projectData.stage || null,
+      timeEstimate: projectData.timeEstimate || null,
+      techNeeded: projectData.techNeeded || null,
+      lookingFor: projectData.lookingFor || null,
+      
+      // policy fields
+      relevantAgency: projectData.relevantAgency || null,
+      policyTimeline: projectData.policyTimeline || null,
+      requires: projectData.requires || null,
+      precedents: projectData.precedents || null,
+      
+      // problem fields
+      whoAffected: projectData.whoAffected || null,
+      whatsNotWorking: projectData.whatsNotWorking || null,
+      attemptedSolutions: projectData.attemptedSolutions || null,
+      openTo: projectData.openTo || null,
+      
+      // shared optional
+      partnerOrgs: projectData.partnerOrgs || null,
+      links: projectData.links || null,
+      
+      // legacy (for backward compat, can remove later)
+      experienceLevel: projectData.experienceLevel || null,
+      timeCommitment: projectData.timeCommitment || null,
+      duration: projectData.duration || null,
       needs: projectData.needs ?? null,
-      kind: projectData.kind ?? 'project',
+      kind: projectData.kind ?? null,
     };
     
     const docRef = await addDoc(collection(db, 'projects'), project);
-    await loadProjects(); // refresh the store
+    await loadProjects();
     return docRef.id;
   } catch (error) {
-    console.error('Error adding project:', error);
+    console.error('error adding project:', error);
     return null;
   }
 }
