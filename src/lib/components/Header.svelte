@@ -18,7 +18,6 @@
   let displayName = '';
   let avatarUrl = '';
 
-  function editProfile() { goto('/profile'); }
   function openSettings() { goto('/dashboard/settings'); }
 
   const headerBase =
@@ -86,9 +85,6 @@
                   class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm">
                   Dashboard
                 </button>                
-                <button onclick={editProfile} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm">
-                  Edit Profile
-                </button>
                 <button onclick={openSettings} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm">
                   Settings
                 </button>
