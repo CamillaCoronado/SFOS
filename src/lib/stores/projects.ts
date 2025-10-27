@@ -34,7 +34,7 @@ export interface Project {
     githubUrl?: string;
     createdAt: Date;
     updatedAt: Date;
-    status: 'draft' | 'published' | 'archived';
+    status: 'draft' | 'published';
     authorId: string;
     authorName: string;
     authorType: 'civic-hacker' | 'government' | 'resident-org';
@@ -113,7 +113,7 @@ export function loadProjects(): Promise<() => void> {
   });
 }
 
-export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote' | 'status'> & { authorType: string }) {
+export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 'avatars' | 'createdAt' | 'updatedAt' | 'authorId' | 'authorName' | 'upvotes' | 'downvotes' | 'score' | 'views' | 'userVote'> & { authorType: string }) {
   try {
     const user = get(currentUser);
     if (!user) {
@@ -127,7 +127,7 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
       avatars: [],
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
-      status: 'published',
+      status: projectData.status || 'published',
       authorId: user.id,
       authorName: user.username,
       upvotes: 0,

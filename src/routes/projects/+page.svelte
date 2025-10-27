@@ -1,4 +1,3 @@
-<!-- src/routes/projects/+page.svelte -->
 <script lang="ts">
   import { projects } from '$lib/stores/projects';
   import ProjectCard from '$lib/components/ProjectCard.svelte';
@@ -13,6 +12,9 @@
   
   let searchQuery = '';
   let selectedTags: string[] = [];
+
+  // only show published projects on public page
+  $: publicProjects = $projects.filter(project => project.status === 'published');
 
    $: {
     const q = $page.url.searchParams.get('q') ?? '';
@@ -33,10 +35,10 @@
 
   const num = (v: unknown) => Number.isFinite(+(<any>v)) ? +(<any>v) : 0;
 
-  $: popularProjects = [...$projects]
+  $: popularProjects = [...publicProjects]
     .map(p => ({
       ...p,
-      rank: num(p.score) + 0.2 * num(p.comments)  // adjust weight (0.2) as you like
+      rank: num(p.score) + 0.2 * num(p.comments)
     }))
     .sort((a, b) => {
       if (b.rank !== a.rank) return b.rank - a.rank;
@@ -46,7 +48,7 @@
 
       
   // group projects by category (using first tag as category)
-  $: projectsByCategory = $projects.reduce((acc, project) => {
+  $: projectsByCategory = publicProjects.reduce((acc, project) => {
     const category = project.tags[0] || 'uncategorized';
     if (!acc[category]) acc[category] = [];
     acc[category].push(project);
@@ -54,7 +56,7 @@
   }, {} as Record<string, Project[]>);
   
   // filter
-  $: filteredProjects = $projects.filter(project => {
+  $: filteredProjects = publicProjects.filter(project => {
     const q = searchDebounced.toLowerCase();
     const matchesSearch =
       !q ||
@@ -76,7 +78,6 @@
   <!-- Search -->
   <div class="max-w-7xl mx-auto px-4 py-6">
     <div class="w-full flex gap-2 justify-start mx-auto mt-[72px]">
-     <!-- Bind value so typing updates searchQuery; component internals unchanged -->
      <ProjectsSearchForm
       initial={searchQuery}
       on:search={(e) => (searchQuery = e.detail)}
@@ -105,7 +106,7 @@
       </h2>
     {:else}
       <h2 class="text-2xl font-bold text-gray-900 mb-6">
-        All Projects ({$projects.length})
+        All Projects ({publicProjects.length})
       </h2>
     {/if}
 

@@ -49,6 +49,8 @@
   let currentStep = 1;
   const totalSteps = 4;
 
+  let status: 'draft' | 'published' = 'draft';
+
   $: pageTitle = projectType === 'tech' ? 'Civic tech project' 
     : projectType === 'policy' ? 'Policy proposal' 
     : 'Problem/opportunity';
@@ -114,8 +116,8 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  async function handleSubmit(e: Event) {
-    e.preventDefault();
+  async function handleSubmit(submitStatus: 'draft' | 'published') {
+    status = submitStatus;
     error = null;
     
     // Validate all steps
@@ -157,9 +159,10 @@
         // shared optional
         partnerOrgs: partnerOrgs || undefined,
         links: cleanLinks.length > 0 ? cleanLinks : undefined,
-        authorType: 'civic-hacker'
+        authorType: 'civic-hacker',
+        status: submitStatus
       });
-      await goto('/projects');
+      await goto('/dashboard');
     } catch (err) {
       console.error('Submission failed:', err);
       error = err instanceof Error ? err.message : 'Something went wrong. Try again?';
@@ -187,7 +190,7 @@
         <div class="mb-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-red-800 text-sm">{error}</div>
       {/if}
 
-      <form on:submit={handleSubmit} class="space-y-6">
+      <form on:submit|preventDefault={() => handleSubmit('published')} class="space-y-6">
         
         <!-- Step 1: Project Type -->
         {#if currentStep === 1}
@@ -683,13 +686,24 @@
               Continue
             </button>
           {:else}
-            <button
-              type="submit"
-              class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Publishing…' : 'Publish your post'}
-            </button>
+            <div class="pt-4 flex gap-3">
+              <button
+                type="button"
+                on:click={() => handleSubmit('draft')}
+                disabled={isLoading}
+                class="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                {isLoading && status === 'draft' ? 'Saving...' : 'Save as draft'}
+              </button>
+              
+              <button
+                type="submit"
+                disabled={isLoading}
+                class="flex-1 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                {isLoading && status === 'published' ? 'Publishing...' : 'Publish your post'}
+              </button>
+            </div>
           {/if}
         </div>
       </form>
