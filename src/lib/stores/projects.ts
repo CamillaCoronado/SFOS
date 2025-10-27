@@ -73,7 +73,6 @@ export interface Project {
     links?: string[];
     
     // legacy fields (keep for backward compat)
-    experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
     timeCommitment?: string;
     duration?: string;
     needs?: Needs | null;
@@ -165,7 +164,6 @@ export async function addProject(projectData: Omit<Project, 'id' | 'comments' | 
       links: projectData.links || null,
       
       // legacy (for backward compat, can remove later)
-      experienceLevel: projectData.experienceLevel || null,
       timeCommitment: projectData.timeCommitment || null,
       duration: projectData.duration || null,
       needs: projectData.needs ?? null,

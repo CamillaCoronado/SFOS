@@ -74,7 +74,6 @@
                 {project.kind === 'idea' ? 'Idea' : 'Project'}
               </span>
               <span class="text-gray-400">•</span>
-              <span class="capitalize">{project.experienceLevel} level</span>
               <span class="text-gray-400">•</span>
               <span>{fmtDate(project.createdAt)}</span>
             </div>
