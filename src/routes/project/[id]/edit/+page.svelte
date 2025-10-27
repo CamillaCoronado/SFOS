@@ -16,7 +16,6 @@
   let tags = '';
   let githubUrl = '';
   let imageUrl = '';
-  let experienceLevel: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
   let timeCommitment = '';
   let duration = '';
   let contactMethod: 'discord' | 'email' | 'github' | 'other' = 'email';
@@ -36,11 +35,10 @@
     tags = project.tags?.join(', ') || '';
     githubUrl = project.githubUrl || '';
     imageUrl = project.imageUrl || '';
-    experienceLevel = project.experienceLevel;
-    timeCommitment = project.timeCommitment;
-    duration = project.duration;
-    contactMethod = project.contactMethod;
-    contactInfo = project.contactInfo;
+    timeCommitment = project.timeCommitment || '';
+    duration = project.duration || '';
+    contactMethod = (project.contactMethod as 'discord' | 'email' | 'github' | 'other') || 'email';
+    contactInfo = project.contactInfo || '';
     kind = project.kind || 'project';
     needs = project.needs || { eng:0, design:0, data:0, product:0, research:0, ops:0, policy:0 };
     loaded = true;
@@ -82,7 +80,6 @@
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
         githubUrl: githubUrl || undefined,
         imageUrl: imageUrl || undefined,
-        experienceLevel: isProject ? experienceLevel : 'beginner',
         timeCommitment: isProject ? timeCommitment : '',
         duration: isProject ? duration : '',
         contactMethod,
@@ -196,21 +193,6 @@
 
           <!-- Project-only: Experience + Needs -->
           {#if isProject}
-            <div>
-              <label for="experienceLevel" class="block text-sm font-medium text-gray-700 mb-2">
-                experience level required*
-              </label>
-              <select
-                id="experienceLevel"
-                bind:value={experienceLevel}
-                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 border-gray-300"
-              >
-                <option value="beginner">beginner</option>
-                <option value="intermediate">intermediate</option>
-                <option value="advanced">advanced</option>
-              </select>
-            </div>
-
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 contributors needed* {#if fieldErrors.needs}<span class="text-red-600 text-xs">({fieldErrors.needs})</span>{/if}
