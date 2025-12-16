@@ -216,7 +216,10 @@
                   </div>
                   <div class="flex-1">
                     <div class="font-medium text-gray-900">Civic tech project</div>
-                    <div class="text-sm text-gray-600 mt-1">You're working on something that needs code, design, or technical help</div>
+                    <ol>
+                      <li class="text-s list-disc text-gray-600 mt-1">You have a civic tech project you’re building (or thinking of building).</li>
+                      <li class="text-sm list-disc text-gray-600 mt-1">You’re looking for feedback, collaborators, or users.</li>
+                    </ol>
                   </div>
                 </div>
               </button>
