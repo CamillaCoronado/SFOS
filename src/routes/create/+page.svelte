@@ -383,7 +383,7 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">What would be most helpful? <span class="text-gray-500 font-normal">(optional)</span></label>
                   <div class="space-y-2">
-                    {#each ['Collaborators', 'Technical advisors', 'User testing', 'Funding'] as need}
+                    {#each ['Feedback', 'Collaborators', 'Advisors', 'User testing', 'Funding'] as need}
                       <label class="flex items-center">
                         <input type="checkbox" bind:group={lookingFor} value={need.toLowerCase()} class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                         <span class="text-sm text-gray-700">{need}</span>
