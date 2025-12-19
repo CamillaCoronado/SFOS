@@ -349,9 +349,7 @@
                 <div>
                   <label for="stage" class="block text-sm font-medium text-gray-700 mb-2">Where are you at?*</label>
                   <select id="stage" bind:value={stage} class="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    <option value="idea">Just an idea</option>
-                    <option value="scoping">Figuring out what to build</option>
-                    <option value="ready">Ready to start building</option>
+                    <option value="idea">Planning</option>
                     <option value="progress">Actively building</option>
                     <option value="live">Live and needs maintenance</option>
                   </select>
